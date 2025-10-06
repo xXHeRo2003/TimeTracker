@@ -5,13 +5,47 @@
   "main": "src/main/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electronmon ."
+    "dev": "electronmon .",
+    "dist": "electron-builder"
   },
-  "keywords": ["time", "tracker", "electron"],
+  "keywords": [
+    "time",
+    "tracker",
+    "electron"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "electron": "^27.1.2",
+    "electron-builder": "^26.0.12",
     "electronmon": "^2.0.2"
+  },
+  "build": {
+    "appId": "com.flowtime.desktop",
+    "productName": "Flowtime",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "resources"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ]
+    }
   }
 }

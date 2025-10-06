@@ -7,7 +7,7 @@ Dieses Projekt enthält zwei Clients für einen fokussierten Time Tracker:
 
 ## Features
 
-- Fokussierter Countdown-Timer mit Presets (15/25/45/60 Minuten)
+- Fokussierter Countdown-Timer mit Presets (15/25/45/60 Minuten) und eigener Zeit (mm:ss oder Minuten)
 - Task-Eingabefeld, um Sessions mit Beschreibung zu speichern
 - Historie mit Tages-, Wochen- und Gesamtfilter
 - Aggregierte Gesamtfokuszeit über alle Sessions
@@ -20,25 +20,36 @@ Dieses Projekt enthält zwei Clients für einen fokussierten Time Tracker:
 
 Voraussetzungen: Node.js (>= 18).
 
+#### Entwicklung starten
+
 ```bash
 cd desktop
 npm install
 npm run start
 ```
 
-Während der Entwicklung öffnet sich automatisch das DevTools-Fenster. Für den produktiven Build kann `electron-builder` oder eine andere Packager-Lösung ergänzt werden.
+Der Entwicklungsmodus öffnet ein Electron-Fenster inklusive DevTools.
 
-### Mobile (React Native / Expo)
+#### Produktions-Build mit electron-builder
 
-Voraussetzungen: Node.js (>= 18) und Expo CLI (`npm install -g expo-cli`).
+Das Projekt enthält eine vorkonfigurierte `electron-builder`-Integration (`npm run dist`).
 
 ```bash
-cd mobile
+cd desktop
 npm install
-npm run start
+npm run dist
 ```
 
-Anschließend kann die App über den Expo Go Client (iOS/Android) oder einen Emulator geöffnet werden. Für eigenständige Builds empfiehlt sich die Expo EAS Pipeline.
+Der Befehl erzeugt je nach Betriebssystem passende Artefakte im Ordner `desktop/dist/`. Unter Linux wird z. B. `Flowtime-<version>.AppImage` erstellt. Das AppImage lässt sich wie folgt starten:
+
+```bash
+cd desktop/dist
+chmod +x Flowtime-1.0.0.AppImage
+./Flowtime-1.0.0.AppImage
+```
+
+Hinweis: Für macOS (DMG) und Windows (NSIS & Portable) werden die jeweiligen Pakete ebenfalls unter `dist/` abgelegt. Lege eigene Icons im Ordner `desktop/resources/` ab, um plattformspezifische Symbole zu verwenden.
+
 
 ## Struktur
 
@@ -46,21 +57,19 @@ Anschließend kann die App über den Expo Go Client (iOS/Android) oder einen Emu
 .
 ├── desktop
 │   ├── package.json
+│   ├── resources/
+│   ├── dist/
 │   └── src
-│       ├── main
+│       ├── main/
 │       │   └── main.js
-│       ├── preload
+│       ├── preload/
 │       │   └── preload.js
-│       └── renderer
+│       └── renderer/
 │           ├── index.html
 │           ├── renderer.js
 │           └── styles.css
-└── mobile
-    ├── App.tsx
-    ├── app.json
-    ├── babel.config.js
-    ├── package.json
-    └── tsconfig.json
+├── mobile/
+└── README.md
 ```
 
 ## Weiterentwicklung
