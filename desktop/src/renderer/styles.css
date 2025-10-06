@@ -26,7 +26,208 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   padding: 40px 32px;
+}
+
+.settings-toggle {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 40;
+  background: rgba(12, 13, 18, 0.85);
+  color: inherit;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
+}
+
+.settings-toggle:hover,
+.settings-toggle:focus-visible {
+  outline: none;
+  background: rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.settings-toggle:active {
+  transform: translateY(1px);
+}
+
+.settings-toggle--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.settings-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 10, 0.55);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 25;
+}
+
+.settings-backdrop--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.settings {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(360px, 90vw);
+  background: rgba(20, 23, 34, 0.95);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: -25px 0 60px rgba(0, 0, 0, 0.3);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings--visible {
+  transform: translateX(0);
+}
+
+.settings__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.settings__title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.settings__close {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.settings__close:hover,
+.settings__close:focus-visible {
+  outline: none;
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.settings__content {
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.settings__section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: inherit;
+}
+
+.settings__section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f5f7fb;
+}
+
+.settings__section-description {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.settings__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings__label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.settings__select-wrapper {
+  position: relative;
+  display: inline-flex;
+  width: 100%;
+}
+
+.settings__select {
+  appearance: none;
+  width: 100%;
+  padding: 12px 44px 12px 16px;
+  border-radius: 12px;
+  background: rgba(31, 34, 48, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: inherit;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+}
+
+.settings__select:focus {
+  outline: none;
+  border-color: rgba(139, 92, 246, 0.6);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.18);
+}
+
+.settings__select::-ms-expand {
+  display: none;
+}
+
+.settings__select-wrapper::after {
+  content: '';
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  width: 12px;
+  height: 8px;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: 12px 8px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%238b5cf6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E");
+  transform: translateY(-50%);
+  opacity: 0.75;
+}
+
+.settings__select option {
+  background: rgba(20, 23, 34, 0.96);
+  color: #f5f7fb;
+}
+
+.settings__select option:hover,
+.settings__select option:checked {
+  background: rgba(139, 92, 246, 0.35);
+  color: #f5f7fb;
 }
 
 .layout {
@@ -92,15 +293,79 @@ body {
 }
 
 .timer__display {
-  font-size: clamp(3.4rem, 8vw, 4.8rem);
-  letter-spacing: 0.12em;
-  text-align: center;
-  font-weight: 600;
-  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 18px 24px;
   border-radius: 18px;
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(59, 130, 246, 0.12));
   border: 1px solid rgba(139, 92, 246, 0.2);
   transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.timer__display-input {
+  flex: 1;
+  min-width: 0;
+  max-width: min(420px, 100%);
+  font-size: clamp(3.4rem, 8vw, 4.8rem);
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.12em;
+  color: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0 12px;
+}
+
+.timer__display-input::selection {
+  background: rgba(139, 92, 246, 0.25);
+}
+
+.timer__display-input:focus-visible {
+  border-radius: 12px;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.timer__display-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-self: stretch;
+  justify-content: center;
+}
+
+.timer__display-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  background: rgba(12, 13, 18, 0.55);
+  color: inherit;
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.timer__display-button:focus-visible {
+  outline: none;
+  border-color: rgba(139, 92, 246, 0.6);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.timer__display-button:hover {
+  transform: translateY(-2px);
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.timer__display-button:active {
+  transform: translateY(0);
+  background: rgba(139, 92, 246, 0.3);
 }
 
 .timer__presets {

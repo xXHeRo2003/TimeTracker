@@ -13,35 +13,118 @@
     />
   </head>
   <body>
+    <button
+      id="settingsToggle"
+      class="settings-toggle"
+      type="button"
+      aria-haspopup="true"
+      aria-controls="settingsSidebar"
+      aria-expanded="false"
+      data-i18n="settings.toggle"
+    >
+      ⚙ Einstellungen
+    </button>
+    <div id="settingsBackdrop" class="settings-backdrop" aria-hidden="true"></div>
+    <aside id="settingsSidebar" class="settings" aria-hidden="true">
+      <header class="settings__header">
+        <h2 class="settings__title" data-i18n="settings.title">Einstellungen</h2>
+        <button
+          id="settingsClose"
+          class="settings__close"
+          type="button"
+          aria-label="Sidebar schließen"
+          data-i18n-attr="aria-label:settings.close"
+        >
+          ×
+        </button>
+      </header>
+      <div class="settings__content">
+        <section class="settings__section">
+          <h3 class="settings__section-title" data-i18n="settings.language.heading">Sprache</h3>
+          <p class="settings__section-description" data-i18n="settings.language.description">
+            Wähle die Sprache der App.
+          </p>
+          <label class="settings__field" for="languageSelect">
+            <span class="settings__label" data-i18n="settings.language.heading">Sprache</span>
+            <div class="settings__select-wrapper">
+              <select
+                id="languageSelect"
+                class="settings__select"
+                aria-label="Sprache"
+                data-i18n-attr="aria-label:settings.language.heading"
+              >
+                <option value="de" data-i18n="settings.language.de">Deutsch</option>
+                <option value="en" data-i18n="settings.language.en">Englisch</option>
+              </select>
+            </div>
+          </label>
+        </section>
+      </div>
+    </aside>
     <main class="layout">
       <section class="panel panel--primary">
         <header class="panel__header">
           <div>
-            <h1 class="panel__title">Flowtime</h1>
-            <p class="panel__subtitle">Dein smarter Fokus-Timer</p>
+            <h1 class="panel__title" data-i18n="app.title">Flowtime</h1>
+            <p class="panel__subtitle" data-i18n="app.subtitle">Dein smarter Fokus-Timer</p>
           </div>
           <div class="totals">
-            <span class="totals__label">Gesamte Fokuszeit</span>
+            <span class="totals__label" data-i18n="app.totalFocus">Gesamte Fokuszeit</span>
             <span id="totalTime" class="totals__value">00:00:00</span>
           </div>
         </header>
 
         <div class="timer">
-          <div class="timer__display" id="timerDisplay">00:25:00</div>
+          <div class="timer__display" id="timerDisplay">
+            <input
+              id="timerInput"
+              class="timer__display-input"
+              type="text"
+              inputmode="numeric"
+              value="00:25:00"
+              aria-label="Timer bearbeiten"
+              data-i18n-attr="aria-label:timer.input.ariaLabel"
+            />
+            <div
+              class="timer__display-controls"
+              role="group"
+              aria-label="Timer anpassen"
+              data-i18n-attr="aria-label:timer.adjust.groupAria"
+            >
+              <button
+                id="timerIncreaseBtn"
+                class="timer__display-button"
+                type="button"
+                aria-label="Zeit erhöhen"
+                data-i18n-attr="aria-label:timer.adjust.increase"
+              >
+                <span aria-hidden="true">+</span>
+              </button>
+              <button
+                id="timerDecreaseBtn"
+                class="timer__display-button"
+                type="button"
+                aria-label="Zeit verringern"
+                data-i18n-attr="aria-label:timer.adjust.decrease"
+              >
+                <span aria-hidden="true">-</span>
+              </button>
+            </div>
+          </div>
           <div class="timer__presets">
-            <button class="chip" data-minutes="15">15 Min</button>
-            <button class="chip chip--active" data-minutes="25">25 Min</button>
-            <button class="chip" data-minutes="45">45 Min</button>
-            <button class="chip" data-minutes="60">60 Min</button>
+            <button class="chip" data-minutes="15" data-i18n="timer.presets.15">15 Min</button>
+            <button class="chip chip--active" data-minutes="25" data-i18n="timer.presets.25">25 Min</button>
+            <button class="chip" data-minutes="45" data-i18n="timer.presets.45">45 Min</button>
+            <button class="chip" data-minutes="60" data-i18n="timer.presets.60">60 Min</button>
           </div>
           <div class="timer__controls">
             <button id="startPauseBtn" class="btn btn--primary">Start</button>
-            <button id="resetBtn" class="btn btn--ghost">Reset</button>
+            <button id="resetBtn" class="btn btn--ghost" data-i18n="timer.reset">Reset</button>
           </div>
         </div>
 
         <form class="task" id="taskForm">
-          <label for="taskName" class="task__label">Was möchtest du fokussiert erledigen?</label>
+          <label for="taskName" class="task__label" data-i18n="task.prompt">Was möchtest du fokussiert erledigen?</label>
           <div class="task__input-group">
             <input
               id="taskName"
@@ -49,21 +132,24 @@
               type="text"
               class="task__input"
               placeholder="z. B. Marktanalyse präsentieren"
+              data-i18n-attr="placeholder:task.placeholder"
               maxlength="120"
               required
             />
-            <button type="submit" class="btn btn--accent">Task speichern</button>
+            <button type="submit" class="btn btn--accent" data-i18n="task.save">Task speichern</button>
           </div>
         </form>
       </section>
 
       <section class="panel panel--secondary">
         <header class="panel__header">
-          <h2 class="panel__title">Produktivitätsjournal</h2>
+          <h2 class="panel__title" data-i18n="history.title">Produktivitätsjournal</h2>
           <div class="filters">
-            <button class="chip chip--ghost chip--active" data-filter="today">Heute</button>
-            <button class="chip chip--ghost" data-filter="week">Woche</button>
-            <button class="chip chip--ghost" data-filter="all">Alles</button>
+            <button class="chip chip--ghost chip--active" data-filter="today" data-i18n="history.filter.today">
+              Heute
+            </button>
+            <button class="chip chip--ghost" data-filter="week" data-i18n="history.filter.week">Woche</button>
+            <button class="chip chip--ghost" data-filter="all" data-i18n="history.filter.all">Alles</button>
           </div>
         </header>
         <ul id="taskHistory" class="history"></ul>
