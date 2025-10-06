@@ -1,0 +1,17 @@
+{
+  "name": "modern-time-tracker-desktop",
+  "version": "1.0.0",
+  "description": "Electron desktop client for the modern time tracker",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electronmon ."
+  },
+  "keywords": ["time", "tracker", "electron"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.1.2",
+    "electronmon": "^2.0.2"
+  }
+}

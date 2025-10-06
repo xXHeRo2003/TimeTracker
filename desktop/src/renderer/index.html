@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flowtime - Desktop</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="layout">
+      <section class="panel panel--primary">
+        <header class="panel__header">
+          <div>
+            <h1 class="panel__title">Flowtime</h1>
+            <p class="panel__subtitle">Dein smarter Fokus-Timer</p>
+          </div>
+          <div class="totals">
+            <span class="totals__label">Gesamte Fokuszeit</span>
+            <span id="totalTime" class="totals__value">00:00:00</span>
+          </div>
+        </header>
+
+        <div class="timer">
+          <div class="timer__display" id="timerDisplay">00:25:00</div>
+          <div class="timer__presets">
+            <button class="chip" data-minutes="15">15 Min</button>
+            <button class="chip chip--active" data-minutes="25">25 Min</button>
+            <button class="chip" data-minutes="45">45 Min</button>
+            <button class="chip" data-minutes="60">60 Min</button>
+          </div>
+          <div class="timer__controls">
+            <button id="startPauseBtn" class="btn btn--primary">Start</button>
+            <button id="resetBtn" class="btn btn--ghost">Reset</button>
+          </div>
+        </div>
+
+        <form class="task" id="taskForm">
+          <label for="taskName" class="task__label">Was möchtest du fokussiert erledigen?</label>
+          <div class="task__input-group">
+            <input
+              id="taskName"
+              name="taskName"
+              type="text"
+              class="task__input"
+              placeholder="z. B. Marktanalyse präsentieren"
+              maxlength="120"
+              required
+            />
+            <button type="submit" class="btn btn--accent">Task speichern</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel panel--secondary">
+        <header class="panel__header">
+          <h2 class="panel__title">Produktivitätsjournal</h2>
+          <div class="filters">
+            <button class="chip chip--ghost chip--active" data-filter="today">Heute</button>
+            <button class="chip chip--ghost" data-filter="week">Woche</button>
+            <button class="chip chip--ghost" data-filter="all">Alles</button>
+          </div>
+        </header>
+        <ul id="taskHistory" class="history"></ul>
+      </section>
+    </main>
+
+    <template id="historyItemTemplate">
+      <li class="history__item">
+        <div class="history__meta">
+          <span class="history__task"></span>
+          <span class="history__time"></span>
+        </div>
+        <div class="history__meta-sub">
+          <span class="history__duration"></span>
+          <span class="history__timestamp"></span>
+        </div>
+      </li>
+    </template>
+
+    <script src="renderer.js" type="module"></script>
+  </body>
+</html>
