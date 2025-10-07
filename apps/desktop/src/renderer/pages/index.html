@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flowtime - Desktop</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="../styles/index.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -61,8 +61,8 @@
         </section>
       </div>
     </aside>
-    <main class="layout">
-      <section class="panel panel--primary">
+    <main class="layout" data-active-view="timer">
+      <section id="timerPanel" class="panel panel--primary">
         <header class="panel__header">
           <div>
             <h1 class="panel__title" data-i18n="app.title">Flowtime</h1>
@@ -141,7 +141,16 @@
         </form>
       </section>
 
-      <section class="panel panel--secondary">
+      <button
+        id="viewToggleBtn"
+        class="view-toggle"
+        type="button"
+        aria-controls="timerPanel historyPanel"
+      >
+        Aufgaben anzeigen
+      </button>
+
+      <section id="historyPanel" class="panel panel--secondary">
         <header class="panel__header">
           <h2 class="panel__title" data-i18n="history.title">Produktivitätsjournal</h2>
           <div class="filters">
@@ -169,6 +178,6 @@
       </li>
     </template>
 
-    <script src="renderer.js" type="module"></script>
+    <script src="../scripts/app.js" type="module"></script>
   </body>
 </html>

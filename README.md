@@ -1,9 +1,6 @@
 # Flowtime – Moderner Time Tracker
 
-Dieses Projekt enthält zwei Clients für einen fokussierten Time Tracker:
-
-- **desktop/** – Electron-App für Windows, macOS und Linux.
-- **mobile/** – React Native (Expo) App für iOS und Android.
+Dieses Projekt enthält aktuell die Desktop-App für einen fokussierten Time Tracker. Die App liegt nun gebündelt unter `apps/desktop`, sodass Platz für weitere Clients (z. B. Mobile) entsteht.
 
 ## Features
 
@@ -23,7 +20,7 @@ Voraussetzungen: Node.js (>= 18).
 #### Entwicklung starten
 
 ```bash
-cd desktop
+cd apps/desktop
 npm install
 npm run start
 ```
@@ -35,40 +32,47 @@ Der Entwicklungsmodus öffnet ein Electron-Fenster inklusive DevTools.
 Das Projekt enthält eine vorkonfigurierte `electron-builder`-Integration (`npm run dist`).
 
 ```bash
-cd desktop
+cd apps/desktop
 npm install
 npm run dist
 ```
 
-Der Befehl erzeugt je nach Betriebssystem passende Artefakte im Ordner `desktop/dist/`. Unter Linux wird z. B. `Flowtime-<version>.AppImage` erstellt. Das AppImage lässt sich wie folgt starten:
+Der Befehl erzeugt je nach Betriebssystem passende Artefakte im Ordner `apps/desktop/dist/`. Unter Linux wird z. B. `Flowtime-<version>.AppImage` erstellt. Das AppImage lässt sich wie folgt starten:
 
 ```bash
-cd desktop/dist
+cd apps/desktop/dist
 chmod +x Flowtime-1.0.0.AppImage
 ./Flowtime-1.0.0.AppImage
 ```
 
-Hinweis: Für macOS (DMG) und Windows (NSIS & Portable) werden die jeweiligen Pakete ebenfalls unter `dist/` abgelegt. Lege eigene Icons im Ordner `desktop/resources/` ab, um plattformspezifische Symbole zu verwenden.
+Hinweis: Für macOS (DMG) und Windows (NSIS & Portable) werden die jeweiligen Pakete ebenfalls unter `dist/` abgelegt. Lege eigene Icons im Ordner `apps/desktop/resources/` ab, um plattformspezifische Symbole zu verwenden.
 
 
 ## Struktur
 
 ```
 .
-├── desktop
-│   ├── package.json
-│   ├── resources/
-│   ├── dist/
-│   └── src
-│       ├── main/
-│       │   └── main.js
-│       ├── preload/
-│       │   └── preload.js
-│       └── renderer/
-│           ├── index.html
-│           ├── renderer.js
-│           └── styles.css
-├── mobile/
+├── apps
+│   └── desktop
+│       ├── package.json
+│       ├── resources/
+│       ├── dist/
+│       └── src
+│           ├── main/
+│           │   └── index.js
+│           ├── preload/
+│           │   └── index.js
+│           └── renderer/
+│               ├── pages/
+│               │   └── index.html
+│               ├── scripts/
+│               │   └── app.js
+│               └── styles/
+│                   ├── index.css
+│                   └── partials/
+│                       ├── base.css
+│                       ├── components.css
+│                       └── views.css
 └── README.md
 ```
 

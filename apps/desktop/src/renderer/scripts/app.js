@@ -1,3 +1,4 @@
+const layout = document.querySelector('.layout');
 const timerDisplay = document.getElementById('timerDisplay');
 const timerInput = document.getElementById('timerInput');
 const timerIncreaseBtn = document.getElementById('timerIncreaseBtn');
@@ -15,6 +16,7 @@ const settingsSidebar = document.getElementById('settingsSidebar');
 const settingsClose = document.getElementById('settingsClose');
 const settingsBackdrop = document.getElementById('settingsBackdrop');
 const languageSelect = document.getElementById('languageSelect');
+const viewToggleBtn = document.getElementById('viewToggleBtn');
 
 const LANGUAGE_STORAGE_KEY = 'flowtime-language';
 const DEFAULT_LANGUAGE = 'de';
@@ -66,6 +68,10 @@ const translations = {
       prompt: 'Was möchtest du fokussiert erledigen?',
       placeholder: 'z. B. Marktanalyse präsentieren',
       save: 'Task speichern'
+    },
+    mobile: {
+      showTasks: 'Aufgaben anzeigen',
+      showTimer: 'Timer anzeigen'
     },
     timer: {
       presets: {
@@ -130,6 +136,10 @@ const translations = {
       prompt: 'What do you want to focus on?',
       placeholder: 'e.g. Present market analysis',
       save: 'Save task'
+    },
+    mobile: {
+      showTasks: 'Show tasks',
+      showTimer: 'Show timer'
     },
     timer: {
       presets: {
@@ -220,6 +230,7 @@ let deadline = null;
 let timerId = null;
 let isRunning = false;
 let activeFilter = 'today';
+let activeMobileView = 'timer';
 
 const loadHistory = () => {
   try {
@@ -439,6 +450,27 @@ const renderHistory = () => {
   taskHistoryEl.appendChild(fragment);
 };
 
+const updateMobileViewToggleLabel = () => {
+  if (!viewToggleBtn) {
+    return;
+  }
+
+  const key = activeMobileView === 'timer' ? 'mobile.showTasks' : 'mobile.showTimer';
+  const label = translate(key);
+  viewToggleBtn.textContent = label;
+  viewToggleBtn.setAttribute('aria-label', label);
+};
+
+const setActiveMobileView = (view) => {
+  if (!layout) {
+    return;
+  }
+
+  activeMobileView = view === 'tasks' ? 'tasks' : 'timer';
+  layout.setAttribute('data-active-view', activeMobileView);
+  updateMobileViewToggleLabel();
+};
+
 const applyTranslations = () => {
   document.documentElement.lang = currentLanguage;
   document.title = translate('document.title');
@@ -471,6 +503,7 @@ const applyTranslations = () => {
 
   updateStartPauseLabel();
   renderHistory();
+  updateMobileViewToggleLabel();
 };
 
 const clearTimer = () => {
@@ -708,6 +741,15 @@ document.addEventListener('keydown', (event) => {
     setSettingsVisibility(false);
   }
 });
+
+if (viewToggleBtn && layout) {
+  viewToggleBtn.addEventListener('click', () => {
+    const nextView = activeMobileView === 'timer' ? 'tasks' : 'timer';
+    setActiveMobileView(nextView);
+  });
+}
+
+setActiveMobileView(activeMobileView);
 
 updateTimerDisplay({ force: true });
 updateTotalTime();
