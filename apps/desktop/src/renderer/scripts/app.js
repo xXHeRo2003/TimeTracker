@@ -23,7 +23,12 @@ const DEFAULT_LANGUAGE = 'de';
 
 const MIN_TIMER_MS = 1000;
 const MAX_TIMER_MS = 99 * 60 * 60 * 1000;
-const ADJUST_STEP_MS = 60 * 1000;
+const TIME_SEGMENTS = [
+  { id: 'hours', start: 0, end: 2, stepMs: 60 * 60 * 1000 },
+  { id: 'minutes', start: 3, end: 5, stepMs: 60 * 1000 },
+  { id: 'seconds', start: 6, end: 8, stepMs: 1000 }
+];
+const DEFAULT_SEGMENT_ID = 'minutes';
 
 const translations = {
   de: {
@@ -225,6 +230,7 @@ const createId = () =>
 let timerDuration = 25 * 60 * 1000;
 let remainingMs = timerDuration;
 let isEditingTimer = false;
+let activeTimeSegment = DEFAULT_SEGMENT_ID;
 let shouldRevertTimerInput = false;
 let deadline = null;
 let timerId = null;
@@ -336,6 +342,83 @@ const adjustTimerBy = (deltaMs) => {
   const nextDuration = timerDuration + deltaMs;
   clearPresetSelection();
   setTimerFromMs(nextDuration);
+};
+
+const runOnNextFrame = (callback) => {
+  if (typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(callback);
+    return;
+  }
+
+  setTimeout(callback, 0);
+};
+
+const findSegmentById = (segmentId) => TIME_SEGMENTS.find((segment) => segment.id === segmentId);
+
+const getSegmentFromPosition = (position = 0) => {
+  if (position <= 1) {
+    return findSegmentById('hours');
+  }
+  if (position <= 4) {
+    return findSegmentById('minutes');
+  }
+  return findSegmentById('seconds');
+};
+
+const highlightSegment = (segment) => {
+  if (!segment || !timerInput || document.activeElement !== timerInput) {
+    return;
+  }
+  timerInput.setSelectionRange(segment.start, segment.end);
+};
+
+const setActiveTimeSegment = (segmentId, { highlight = false } = {}) => {
+  const segment = findSegmentById(segmentId);
+  if (!segment) {
+    return;
+  }
+
+  activeTimeSegment = segment.id;
+
+  if (highlight) {
+    highlightSegment(segment);
+  }
+};
+
+const adjustTimerByActiveSegment = (direction) => {
+  const segment = findSegmentById(activeTimeSegment) ?? findSegmentById(DEFAULT_SEGMENT_ID);
+  if (!segment) {
+    return;
+  }
+
+  adjustTimerBy(direction * segment.stepMs);
+
+  if (timerInput && document.activeElement === timerInput) {
+    runOnNextFrame(() => setActiveTimeSegment(segment.id, { highlight: true }));
+  }
+};
+
+const moveActiveSegment = (offset) => {
+  const currentIndex = TIME_SEGMENTS.findIndex((segment) => segment.id === activeTimeSegment);
+  const nextIndex = Math.min(Math.max(currentIndex + offset, 0), TIME_SEGMENTS.length - 1);
+  const targetSegment = TIME_SEGMENTS[nextIndex];
+
+  if (targetSegment) {
+    setActiveTimeSegment(targetSegment.id, { highlight: true });
+  }
+};
+
+const selectSegmentAtCursor = () => {
+  if (!timerInput) {
+    return;
+  }
+
+  const position = timerInput.selectionStart ?? 0;
+  const segment = getSegmentFromPosition(position) ?? findSegmentById(DEFAULT_SEGMENT_ID);
+
+  if (segment) {
+    setActiveTimeSegment(segment.id, { highlight: true });
+  }
 };
 
 const handleTimerInputCommit = () => {
@@ -586,13 +669,13 @@ presetButtons.forEach((button) => {
 
 if (timerIncreaseBtn) {
   timerIncreaseBtn.addEventListener('click', () => {
-    adjustTimerBy(ADJUST_STEP_MS);
+    adjustTimerByActiveSegment(1);
   });
 }
 
 if (timerDecreaseBtn) {
   timerDecreaseBtn.addEventListener('click', () => {
-    adjustTimerBy(-ADJUST_STEP_MS);
+    adjustTimerByActiveSegment(-1);
   });
 }
 
@@ -600,7 +683,7 @@ if (timerInput) {
   timerInput.addEventListener('focus', () => {
     isEditingTimer = true;
     shouldRevertTimerInput = false;
-    timerInput.select();
+    runOnNextFrame(() => setActiveTimeSegment(activeTimeSegment, { highlight: true }));
   });
 
   timerInput.addEventListener('keydown', (event) => {
@@ -619,14 +702,34 @@ if (timerInput) {
 
     if (event.key === 'ArrowUp') {
       event.preventDefault();
-      adjustTimerBy(ADJUST_STEP_MS);
+      adjustTimerByActiveSegment(1);
       return;
     }
 
     if (event.key === 'ArrowDown') {
       event.preventDefault();
-      adjustTimerBy(-ADJUST_STEP_MS);
+      adjustTimerByActiveSegment(-1);
+      return;
     }
+
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      moveActiveSegment(-1);
+      return;
+    }
+
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      moveActiveSegment(1);
+    }
+  });
+
+  timerInput.addEventListener('mouseup', () => {
+    runOnNextFrame(selectSegmentAtCursor);
+  });
+
+  timerInput.addEventListener('touchend', () => {
+    runOnNextFrame(selectSegmentAtCursor);
   });
 
   timerInput.addEventListener('blur', () => {
