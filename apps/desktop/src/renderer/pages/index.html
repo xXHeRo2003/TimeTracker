@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
+    />
     <title>Flowtime - Desktop</title>
     <link rel="stylesheet" href="../styles/index.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -58,6 +62,21 @@
               </select>
             </div>
           </label>
+        </section>
+        <section class="settings__section">
+          <h3 class="settings__section-title" data-i18n="settings.infoTitle">App-Informationen</h3>
+          <dl class="settings__meta">
+            <div class="settings__meta-row">
+              <dt class="settings__label" data-i18n="settings.version.label">Version</dt>
+              <dd
+                id="appVersion"
+                class="settings__value"
+                data-i18n="settings.version.placeholder"
+              >
+                Lade...
+              </dd>
+            </div>
+          </dl>
         </section>
       </div>
     </aside>

@@ -176,6 +176,28 @@ body {
   color: var(--text-muted);
 }
 
+.settings__meta {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.settings__meta-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.settings__value {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: right;
+}
+
 .settings__select-wrapper {
   position: relative;
   display: inline-flex;
@@ -633,4 +655,5 @@ body {
 
 .timer__display--complete {
   box-shadow: 0 0 30px rgba(16, 185, 129, 0.35);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(59, 130, 246, 0.12));
 }

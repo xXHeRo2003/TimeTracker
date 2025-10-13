@@ -6,7 +6,11 @@
   "scripts": {
     "start": "electron .",
     "dev": "electronmon .",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "lint": "eslint \"src/**/*.{js,cjs,mjs}\"",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "prettier --check \"src/**/*.{js,json,css,html}\"",
+    "format:write": "prettier --write \"src/**/*.{js,json,css,html}\""
   },
   "keywords": [
     "time",
@@ -18,7 +22,11 @@
   "devDependencies": {
     "electron": "^27.1.2",
     "electron-builder": "^26.0.12",
-    "electronmon": "^2.0.2"
+    "electronmon": "^2.0.2",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "prettier": "^3.1.1"
   },
   "build": {
     "appId": "com.flowtime.desktop",

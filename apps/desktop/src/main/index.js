@@ -1,4 +1,4 @@
-const { app, BrowserWindow, nativeImage, Menu } = require('electron');
+const { app, BrowserWindow, nativeImage, Menu, ipcMain } = require('electron');
 const path = require('path');
 
 const getIconPath = () => {
@@ -29,7 +29,10 @@ const createMainWindow = () => {
     icon: iconImage.isEmpty() ? iconPath : iconImage,
     webPreferences: {
       contextIsolation: true,
-      preload: path.join(__dirname, '../preload/index.js')
+      preload: path.join(__dirname, '../preload/index.js'),
+      nodeIntegration: false,
+      sandbox: true,
+      enableRemoteModule: false
     }
   });
 
@@ -37,6 +40,11 @@ const createMainWindow = () => {
   mainWindow.setAutoHideMenuBar(true);
 
   mainWindow.loadFile(path.join(__dirname, '../renderer/pages/index.html'));
+
+  mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  mainWindow.webContents.on('will-navigate', (event) => {
+    event.preventDefault();
+  });
 
   if (!app.isPackaged) {
     mainWindow.webContents.openDevTools({ mode: 'detach' });
@@ -57,6 +65,8 @@ app.whenReady().then(() => {
       createMainWindow();
     }
   });
+
+  ipcMain.handle('app:getVersion', () => app.getVersion());
 });
 
 app.on('window-all-closed', () => {

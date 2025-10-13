@@ -1,5 +1,7 @@
-const { contextBridge } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('timeTracker', {
-  version: '1.0.0'
-});
+const api = {
+  getVersion: () => ipcRenderer.invoke('app:getVersion')
+};
+
+contextBridge.exposeInMainWorld('timeTracker', api);

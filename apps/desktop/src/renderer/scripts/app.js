@@ -17,6 +17,7 @@ const settingsClose = document.getElementById('settingsClose');
 const settingsBackdrop = document.getElementById('settingsBackdrop');
 const languageSelect = document.getElementById('languageSelect');
 const viewToggleBtn = document.getElementById('viewToggleBtn');
+const appVersionEl = document.getElementById('appVersion');
 
 const LANGUAGE_STORAGE_KEY = 'flowtime-language';
 const DEFAULT_LANGUAGE = 'de';
@@ -29,6 +30,7 @@ const TIME_SEGMENTS = [
   { id: 'seconds', start: 6, end: 8, stepMs: 1000 }
 ];
 const DEFAULT_SEGMENT_ID = 'minutes';
+let cachedFirstDayOfWeekIndex = null;
 
 const translations = {
   de: {
@@ -62,6 +64,11 @@ const translations = {
       toggle: '⚙ Einstellungen',
       title: 'Einstellungen',
       close: 'Sidebar schließen',
+      infoTitle: 'App-Informationen',
+      version: {
+        label: 'Version',
+        placeholder: 'Lade...'
+      },
       language: {
         heading: 'Sprache',
         description: 'Wähle die Sprache der App.',
@@ -130,6 +137,11 @@ const translations = {
       toggle: '⚙ Settings',
       title: 'Settings',
       close: 'Close settings sidebar',
+      infoTitle: 'App information',
+      version: {
+        label: 'Version',
+        placeholder: 'Loading...'
+      },
       language: {
         heading: 'Language',
         description: 'Choose the language for the app.',
@@ -207,9 +219,34 @@ const translate = (key) =>
 
 const getActiveLocale = () => (currentLanguage === 'de' ? 'de-DE' : 'en-US');
 
+const updateAppVersion = (version) => {
+  if (!appVersionEl || typeof version !== 'string' || !version.trim()) {
+    return;
+  }
+
+  const normalized = version.trim();
+  appVersionEl.textContent = normalized;
+  appVersionEl.setAttribute('data-version-value', normalized);
+  document.body?.setAttribute('data-app-version', version);
+};
+
+const initializeAppVersion = async () => {
+  if (!window?.timeTracker?.getVersion) {
+    return;
+  }
+
+  try {
+    const version = await window.timeTracker.getVersion();
+    updateAppVersion(version);
+  } catch (error) {
+    console.warn('[app] Unable to retrieve application version', error);
+  }
+};
+
 const setLanguage = (language) => {
   const nextLanguage = translations[language] ? language : DEFAULT_LANGUAGE;
   currentLanguage = nextLanguage;
+  cachedFirstDayOfWeekIndex = null;
 
   try {
     localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage);
@@ -256,7 +293,11 @@ const loadHistory = () => {
 };
 
 const saveHistory = (history) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+  } catch (error) {
+    console.warn('[storage] Unable to persist history', error);
+  }
 };
 
 let history = loadHistory();
@@ -475,11 +516,62 @@ const parseTimerInput = (value) => {
   return totalMs;
 };
 
+const DAY_INDEX_BY_KEY = {
+  sun: 0,
+  mon: 1,
+  tue: 2,
+  wed: 3,
+  thu: 4,
+  fri: 5,
+  sat: 6
+};
+
+const resolveFirstDayOfWeekIndex = () => {
+  if (cachedFirstDayOfWeekIndex != null) {
+    return cachedFirstDayOfWeekIndex;
+  }
+
+  let resolvedIndex = DAY_INDEX_BY_KEY.mon;
+
+  try {
+    if (typeof Intl !== 'undefined' && typeof Intl.Locale === 'function') {
+      const locale = new Intl.Locale(getActiveLocale());
+      const weekInfo = locale.weekInfo;
+      if (weekInfo?.firstDay && DAY_INDEX_BY_KEY[weekInfo.firstDay] != null) {
+        resolvedIndex = DAY_INDEX_BY_KEY[weekInfo.firstDay];
+      }
+    }
+  } catch (error) {
+    console.warn('[i18n] Falling back to Monday as start of week', error);
+  }
+
+  cachedFirstDayOfWeekIndex = resolvedIndex;
+  return resolvedIndex;
+};
+
+const getStartOfWeek = (referenceDate) => {
+  const firstDayIndex = resolveFirstDayOfWeekIndex();
+  const start = new Date(referenceDate);
+  const dayIndex = start.getDay();
+  const diff = (dayIndex - firstDayIndex + 7) % 7;
+  start.setDate(start.getDate() - diff);
+  start.setHours(0, 0, 0, 0);
+  return start;
+};
+
+const getEndOfWeek = (referenceDate) => {
+  const end = new Date(getStartOfWeek(referenceDate));
+  end.setDate(end.getDate() + 7);
+  return end;
+};
+
 const renderHistory = () => {
   taskHistoryEl.innerHTML = '';
   const fragment = document.createDocumentFragment();
   const now = new Date();
   const locale = getActiveLocale();
+  const startOfWeek = getStartOfWeek(now);
+  const endOfWeek = getEndOfWeek(now);
 
   const filtered = history.filter((entry) => {
     if (activeFilter === 'all') {
@@ -492,13 +584,6 @@ const renderHistory = () => {
     }
 
     if (activeFilter === 'week') {
-      const startOfWeek = new Date(now);
-      startOfWeek.setDate(now.getDate() - now.getDay());
-      startOfWeek.setHours(0, 0, 0, 0);
-
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 7);
-
       return completed >= startOfWeek && completed < endOfWeek;
     }
 
@@ -563,6 +648,11 @@ const applyTranslations = () => {
     if (!key) {
       return;
     }
+
+    if (element.dataset?.versionValue != null) {
+      return;
+    }
+
     element.textContent = translate(key);
   });
 
@@ -582,6 +672,10 @@ const applyTranslations = () => {
 
   if (languageSelect) {
     languageSelect.value = currentLanguage;
+  }
+
+  if (appVersionEl && !appVersionEl.getAttribute('data-version-value')) {
+    appVersionEl.textContent = translate('settings.version.placeholder');
   }
 
   updateStartPauseLabel();
@@ -621,11 +715,13 @@ const tick = () => {
 };
 
 const triggerCompletionFeedback = () => {
+  if (!timerDisplay) {
+    return;
+  }
+
   timerDisplay.classList.add('timer__display--complete');
-  timerDisplay.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(59, 130, 246, 0.12))';
   setTimeout(() => {
     timerDisplay.classList.remove('timer__display--complete');
-    timerDisplay.style.background = '';
   }, 2500);
 };
 
@@ -857,3 +953,4 @@ setActiveMobileView(activeMobileView);
 updateTimerDisplay({ force: true });
 updateTotalTime();
 applyTranslations();
+initializeAppVersion();
