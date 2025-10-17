@@ -25,6 +25,14 @@
       "parserOptions": {
         "sourceType": "module"
       }
+    },
+    {
+      "files": [
+        "tests/**/*.mjs"
+      ],
+      "parserOptions": {
+        "sourceType": "module"
+      }
     }
   ],
   "rules": {

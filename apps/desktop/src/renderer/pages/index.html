@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
@@ -69,11 +69,7 @@
           <dl class="settings__meta">
             <div class="settings__meta-row">
               <dt class="settings__label" data-i18n="settings.version.label">Version</dt>
-              <dd
-                id="appVersion"
-                class="settings__value"
-                data-i18n="settings.version.placeholder"
-              >
+              <dd id="appVersion" class="settings__value" data-i18n="settings.version.placeholder">
                 Lade...
               </dd>
             </div>
@@ -133,7 +129,9 @@
           </div>
           <div class="timer__presets">
             <button class="chip" data-minutes="15" data-i18n="timer.presets.15">15 Min</button>
-            <button class="chip chip--active" data-minutes="25" data-i18n="timer.presets.25">25 Min</button>
+            <button class="chip chip--active" data-minutes="25" data-i18n="timer.presets.25">
+              25 Min
+            </button>
             <button class="chip" data-minutes="45" data-i18n="timer.presets.45">45 Min</button>
             <button class="chip" data-minutes="60" data-i18n="timer.presets.60">60 Min</button>
           </div>
@@ -144,7 +142,9 @@
         </div>
 
         <form class="task" id="taskForm">
-          <label for="taskName" class="task__label" data-i18n="task.prompt">Was möchtest du fokussiert erledigen?</label>
+          <label for="taskName" class="task__label" data-i18n="task.prompt"
+            >Was möchtest du fokussiert erledigen?</label
+          >
           <div class="task__input-group">
             <input
               id="taskName"
@@ -156,7 +156,9 @@
               maxlength="120"
               required
             />
-            <button type="submit" class="btn btn--accent" data-i18n="task.save">Task speichern</button>
+            <button type="submit" class="btn btn--accent" data-i18n="task.save">
+              Task speichern
+            </button>
           </div>
         </form>
       </section>
@@ -174,11 +176,19 @@
         <header class="panel__header">
           <h2 class="panel__title" data-i18n="history.title">Produktivitätsjournal</h2>
           <div class="filters">
-            <button class="chip chip--ghost chip--active" data-filter="today" data-i18n="history.filter.today">
+            <button
+              class="chip chip--ghost chip--active"
+              data-filter="today"
+              data-i18n="history.filter.today"
+            >
               Heute
             </button>
-            <button class="chip chip--ghost" data-filter="week" data-i18n="history.filter.week">Woche</button>
-            <button class="chip chip--ghost" data-filter="all" data-i18n="history.filter.all">Alles</button>
+            <button class="chip chip--ghost" data-filter="week" data-i18n="history.filter.week">
+              Woche
+            </button>
+            <button class="chip chip--ghost" data-filter="all" data-i18n="history.filter.all">
+              Alles
+            </button>
           </div>
         </header>
         <ul id="taskHistory" class="history"></ul>

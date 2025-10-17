@@ -1,0 +1,23 @@
+export const elements = {
+  layout: document.querySelector('.layout'),
+  timerPanel: document.getElementById('timerPanel'),
+  timerDisplay: document.getElementById('timerDisplay'),
+  timerInput: document.getElementById('timerInput'),
+  timerIncreaseBtn: document.getElementById('timerIncreaseBtn'),
+  timerDecreaseBtn: document.getElementById('timerDecreaseBtn'),
+  totalTime: document.getElementById('totalTime'),
+  startPauseBtn: document.getElementById('startPauseBtn'),
+  resetBtn: document.getElementById('resetBtn'),
+  taskForm: document.getElementById('taskForm'),
+  taskHistory: document.getElementById('taskHistory'),
+  historyItemTemplate: document.getElementById('historyItemTemplate'),
+  presetButtons: Array.from(document.querySelectorAll('.timer__presets .chip')),
+  filterButtons: Array.from(document.querySelectorAll('.filters .chip')),
+  settingsToggle: document.getElementById('settingsToggle'),
+  settingsSidebar: document.getElementById('settingsSidebar'),
+  settingsClose: document.getElementById('settingsClose'),
+  settingsBackdrop: document.getElementById('settingsBackdrop'),
+  languageSelect: document.getElementById('languageSelect'),
+  viewToggleBtn: document.getElementById('viewToggleBtn'),
+  appVersion: document.getElementById('appVersion')
+};

@@ -1,35 +1,25 @@
 # Flowtime – Moderner Time Tracker
 
-Dieses Projekt enthält aktuell die Desktop-App für einen fokussierten Time Tracker. Die App liegt nun gebündelt unter `apps/desktop`, sodass Platz für weitere Clients (z. B. Mobile) entsteht.
+Flowtime ist ein fokussierter Desktop-Timer auf Basis von Electron. Die App ist modular aufgebaut, mehrsprachig (de/en) und speichert Arbeits-Sessions lokal auf dem Gerät.
 
-## Features
+## Highlights
 
-- Fokussierter Countdown-Timer mit Presets (15/25/45/60 Minuten) und eigener Zeit (mm:ss oder Minuten)
-- Task-Eingabefeld, um Sessions mit Beschreibung zu speichern
-- Historie mit Tages-, Wochen- und Gesamtfilter
-- Aggregierte Gesamtfokuszeit über alle Sessions
-- Persistenz: Desktop via `localStorage`, Mobile via `AsyncStorage`
-- Dunkles, modernes UI mit Inter-Font
+- Fokus-Timer mit Presets (15/25/45/60 Minuten), manueller Eingabe und Tastatursteuerung
+- Task-Formular mit Session-Historie inklusive Tages-, Wochen- und Gesamtfilter
+- Persistente Speicherung via `localStorage` und optische Rückmeldung bei Timer-Ende
+- Sauber getrennte Renderer-Module für Timer, Historie, Einstellungen, i18n und Hilfsfunktionen
 
-## Getting Started
+## Getting Started (Desktop)
 
-### Desktop (Electron)
-
-Voraussetzungen: Node.js (>= 18).
-
-#### Entwicklung starten
+Voraussetzung: Node.js (>= 18).
 
 ```bash
 cd apps/desktop
 npm install
-npm run start
+npm run start   # development mode
 ```
 
-Der Entwicklungsmodus öffnet ein Electron-Fenster inklusive DevTools.
-
-#### Produktions-Build mit electron-builder
-
-Das Projekt enthält eine vorkonfigurierte `electron-builder`-Integration (`npm run dist`).
+Für Produktions-Builds steht electron-builder bereit:
 
 ```bash
 cd apps/desktop
@@ -37,18 +27,9 @@ npm install
 npm run dist
 ```
 
-Der Befehl erzeugt je nach Betriebssystem passende Artefakte im Ordner `apps/desktop/dist/`. Unter Linux wird z. B. `Flowtime-<version>.AppImage` erstellt. Das AppImage lässt sich wie folgt starten:
+Die Artefakte landen unter `apps/desktop/dist/` (AppImage, DMG, NSIS/Portable). Plattform-Icons befinden sich in `apps/desktop/resources/icons/`.
 
-```bash
-cd apps/desktop/dist
-chmod +x Flowtime-1.0.0.AppImage
-./Flowtime-1.0.0.AppImage
-```
-
-Hinweis: Für macOS (DMG) und Windows (NSIS & Portable) werden die jeweiligen Pakete ebenfalls unter `dist/` abgelegt. Lege eigene Icons im Ordner `apps/desktop/resources/` ab, um plattformspezifische Symbole zu verwenden.
-
-
-## Struktur
+## Projektstruktur
 
 ```
 .
@@ -56,17 +37,22 @@ Hinweis: Für macOS (DMG) und Windows (NSIS & Portable) werden die jeweiligen Pa
 │   └── desktop
 │       ├── package.json
 │       ├── resources/
-│       ├── dist/
 │       └── src
 │           ├── main/
-│           │   └── index.js
+│           │   └── index.js              # Electron Hauptprozess
 │           ├── preload/
-│           │   └── index.js
+│           │   └── index.js              # Gesicherte Bridge API
 │           └── renderer/
 │               ├── pages/
 │               │   └── index.html
 │               ├── scripts/
-│               │   └── app.js
+│               │   ├── app.js            # Einstiegspunkt
+│               │   ├── config/           # Konstanten & Übersetzungen
+│               │   ├── core/             # i18n State
+│               │   ├── features/         # Timer, History, Settings, Mobile View
+│               │   ├── services/         # Storage-Anbindung
+│               │   ├── ui/               # DOM-Helfer & UI-spezifische Utilities
+│               │   └── utils/            # Generische Helper (Zeit, UUIDs, Datumsbereiche)
 │               └── styles/
 │                   ├── index.css
 │                   └── partials/
@@ -76,10 +62,27 @@ Hinweis: Für macOS (DMG) und Windows (NSIS & Portable) werden die jeweiligen Pa
 └── README.md
 ```
 
-## Weiterentwicklung
+## Code-Aufbau (Renderer)
 
-- Automatische Synchronisation zwischen Desktop und Mobile kann z. B. via Firebase, Supabase oder eigenem Backend ergänzt werden.
-- Push-Nachrichten oder Widgets für Pausen erinnern.
-- Erweiterte Reports (z. B. Wochenziele, CSV-Export).
+- `features/timer.js` kapselt alle Timer-Interaktionen (Start/Pause, Segment-Navigation, Presets).
+- `features/history.js` lädt und rendert die Historie, inklusive Filterlogik und Totalzeit.
+- `features/settings.js` verantwortet das Einstellungs-Panel, Sprachwechsel und Responsive-Umbau.
+- `core/i18n.js` stellt Übersetzungs- und Sprachauswahl-Logik inkl. Listenern bereit.
+- `ui/translations.js` übernimmt das Aktualisieren der DOM-Texte; `ui/version.js` zieht die App-Version aus der Preload-Bridge.
+
+Diese Schnittstellen halten den Einstieg in `scripts/app.js` schlank und erleichtern Erweiterungen, etwa neue Features oder zusätzliche Views.
+
+## README aktuell halten
+
+- Ergänze neue Module oder Skripte sofort in den Abschnitten „Projektstruktur“ bzw. „Code-Aufbau“.
+- Dokumentiere Build- oder Runtime-Abhängigkeiten, sobald sie hinzukommen.
+- Prüfe bei Funktionsänderungen, ob Highlights oder Bedienhinweise angepasst werden müssen.
+- Notiere Datum und Anlass größerer Überarbeitungen im Commit-Log, damit der Kontext nachvollziehbar bleibt.
+
+## Weiterentwicklungsideen
+
+1. Sync-Backends (z. B. Supabase, Firebase) für geräteübergreifende Historien.
+2. Erweiterte Auswertungen wie Wochenziele, CSV-/ICS-Export oder Reporting-Grafiken.
+3. Fokus-Assistenten: Pausenerinnerungen, Desktop-Notifications oder Widgets.
 
 Viel Erfolg beim Fokussieren!
