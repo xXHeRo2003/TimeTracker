@@ -24,9 +24,10 @@
       aria-haspopup="true"
       aria-controls="settingsSidebar"
       aria-expanded="false"
-      data-i18n="settings.toggle"
+      data-i18n-attr="aria-label:settings.toggle"
     >
-      ⚙ Einstellungen
+      <span class="settings-toggle__icon" aria-hidden="true">⚙</span>
+      <span class="settings-toggle__label" data-i18n="settings.toggle">Einstellungen</span>
     </button>
     <div id="settingsBackdrop" class="settings-backdrop" aria-hidden="true"></div>
     <aside id="settingsSidebar" class="settings" aria-hidden="true">

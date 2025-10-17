@@ -61,7 +61,7 @@ const translations = {
       }
     },
     settings: {
-      toggle: '⚙ Einstellungen',
+      toggle: 'Einstellungen',
       title: 'Einstellungen',
       close: 'Sidebar schließen',
       infoTitle: 'App-Informationen',
@@ -134,7 +134,7 @@ const translations = {
       }
     },
     settings: {
-      toggle: '⚙ Settings',
+      toggle: 'Settings',
       title: 'Settings',
       close: 'Close settings sidebar',
       infoTitle: 'App information',

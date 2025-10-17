@@ -12,6 +12,16 @@
   transition: transform 0.2s ease, background 0.25s ease, border-color 0.25s ease;
 }
 
+.settings-toggle__icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.settings-toggle__label {
+  display: inline-flex;
+  align-items: center;
+}
+
 .settings-toggle:hover,
 .settings-toggle:focus-visible {
   background: rgba(30, 18, 52, 0.85);
