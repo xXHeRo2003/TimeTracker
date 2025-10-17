@@ -1,4 +1,5 @@
 const layout = document.querySelector('.layout');
+const timerPanel = document.getElementById('timerPanel');
 const timerDisplay = document.getElementById('timerDisplay');
 const timerInput = document.getElementById('timerInput');
 const timerIncreaseBtn = document.getElementById('timerIncreaseBtn');
@@ -18,6 +19,13 @@ const settingsBackdrop = document.getElementById('settingsBackdrop');
 const languageSelect = document.getElementById('languageSelect');
 const viewToggleBtn = document.getElementById('viewToggleBtn');
 const appVersionEl = document.getElementById('appVersion');
+
+const settingsToggleOriginalParent = settingsToggle?.parentElement ?? null;
+const settingsToggleNextSibling = settingsToggle?.nextElementSibling ?? null;
+const settingsToggleMediaQuery =
+  typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+    ? window.matchMedia('(max-width: 768px)')
+    : null;
 
 const LANGUAGE_STORAGE_KEY = 'flowtime-language';
 const DEFAULT_LANGUAGE = 'de';
@@ -922,6 +930,43 @@ const toggleSettingsSidebar = () => {
   const isVisible = settingsSidebar?.classList.contains('settings--visible');
   setSettingsVisibility(!isVisible);
 };
+
+const relocateSettingsToggle = (embedInPanel) => {
+  if (!settingsToggle) {
+    return;
+  }
+
+  if (embedInPanel) {
+    if (timerPanel && settingsToggle.parentElement !== timerPanel) {
+      timerPanel.prepend(settingsToggle);
+    }
+    return;
+  }
+
+  if (
+    settingsToggleOriginalParent &&
+    settingsToggle.parentElement !== settingsToggleOriginalParent
+  ) {
+    if (settingsToggleNextSibling && settingsToggleNextSibling.parentNode === settingsToggleOriginalParent) {
+      settingsToggleOriginalParent.insertBefore(settingsToggle, settingsToggleNextSibling);
+    } else {
+      settingsToggleOriginalParent.appendChild(settingsToggle);
+    }
+  }
+};
+
+if (settingsToggleMediaQuery) {
+  relocateSettingsToggle(settingsToggleMediaQuery.matches);
+  const handleToggleRelocation = (event) => relocateSettingsToggle(event.matches);
+
+  if (typeof settingsToggleMediaQuery.addEventListener === 'function') {
+    settingsToggleMediaQuery.addEventListener('change', handleToggleRelocation);
+  } else if (typeof settingsToggleMediaQuery.addListener === 'function') {
+    settingsToggleMediaQuery.addListener(handleToggleRelocation);
+  }
+} else {
+  relocateSettingsToggle(false);
+}
 
 if (settingsToggle) {
   settingsToggle.addEventListener('click', toggleSettingsSidebar);

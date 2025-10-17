@@ -282,6 +282,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  position: relative;
 }
 
 .panel__header {
@@ -643,9 +644,14 @@ body {
     width: 100%;
   }
 
+  #timerPanel {
+    padding-top: 72px;
+  }
+
   .settings-toggle {
-    top: 16px;
-    right: 16px;
+    position: absolute;
+    top: 18px;
+    right: 18px;
   }
 
   .settings-toggle__icon {
@@ -729,6 +735,8 @@ body {
     padding: 12px;
     border-radius: 50%;
     justify-content: center;
+    top: 16px;
+    right: 16px;
   }
 
   .settings-toggle__icon {
@@ -751,6 +759,10 @@ body {
 @media (max-width: 480px) {
   .panel {
     padding: 18px 16px;
+  }
+
+  #timerPanel {
+    padding-top: 68px;
   }
 
   .panel__title {
