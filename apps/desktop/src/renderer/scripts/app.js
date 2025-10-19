@@ -2,6 +2,7 @@ import { createHistoryManager } from './features/history.js';
 import { createMobileViewController } from './features/mobileView.js';
 import { createSettingsPanel } from './features/settings.js';
 import { createTimerController } from './features/timer.js';
+import { createBreakReminder } from './features/breakReminder.js';
 import { getLanguage, getLocale, onLanguageChange, setLanguage, translate } from './core/i18n.js';
 import { elements } from './ui/dom.js';
 import { applyDocumentTranslations } from './ui/translations.js';
@@ -11,6 +12,7 @@ import { createId } from './utils/id.js';
 const timer = createTimerController({ elements, translate });
 const history = createHistoryManager({ elements, translate, getLocale });
 const mobileView = createMobileViewController({ elements, translate });
+const breakReminder = createBreakReminder({ elements, timer, translate, onLanguageChange });
 
 const settings = createSettingsPanel({
   elements,
@@ -28,6 +30,7 @@ const applyLanguage = () => {
   history.refresh();
   mobileView.refreshLabels();
   settings.refreshLanguageSelection();
+  breakReminder?.refreshLanguage?.();
 };
 
 applyLanguage();
@@ -59,10 +62,12 @@ if (elements.taskForm) {
       return;
     }
 
+    const mode = timer.getMode();
     const entry = {
       id: createId(),
       taskName,
-      plannedMs: timer.getDuration(),
+      plannedMs: mode === 'countdown' ? timer.getDuration() : null,
+      mode,
       trackedMs,
       completedAt: new Date().toISOString()
     };

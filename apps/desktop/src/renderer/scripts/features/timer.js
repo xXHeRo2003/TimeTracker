@@ -29,15 +29,25 @@ const getSegmentFromPosition = (position = 0) => {
   return findSegmentById('seconds');
 };
 
+const TIMER_MODE = Object.freeze({
+  COUNTDOWN: 'countdown',
+  STOPWATCH: 'stopwatch'
+});
+
 export const createTimerController = ({ elements, translate, onComplete }) => {
+  let mode = TIMER_MODE.COUNTDOWN;
   let durationMs = DEFAULT_TIMER_MINUTES * 60 * 1000;
   let remainingMs = durationMs;
+  let elapsedMs = 0;
   let isRunning = false;
   let deadline = null;
+  let stopwatchStartTime = null;
   let timerId = null;
   let isEditing = false;
   let shouldRevertInput = false;
   let activeSegmentId = DEFAULT_SEGMENT_ID;
+
+  const isCountdownMode = () => mode === TIMER_MODE.COUNTDOWN;
 
   const clearTimer = () => {
     if (timerId) {
@@ -65,7 +75,12 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
       return;
     }
 
-    if (remainingMs > 0 && remainingMs < durationMs) {
+    if (isCountdownMode()) {
+      if (remainingMs > 0 && remainingMs < durationMs) {
+        setStartButtonLabel('resume');
+        return;
+      }
+    } else if (elapsedMs > 0) {
       setStartButtonLabel('resume');
       return;
     }
@@ -73,20 +88,27 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
     setStartButtonLabel('start');
   };
 
+  const getDisplayMs = () => (isCountdownMode() ? remainingMs : elapsedMs);
+
   const updateTimerDisplay = ({ force = false } = {}) => {
     if (!elements.timerInput) {
       return;
     }
 
-    if (isEditing && !force) {
+    if (isCountdownMode() && isEditing && !force) {
       return;
     }
 
-    elements.timerInput.value = formatDuration(remainingMs);
+    elements.timerInput.value = formatDuration(getDisplayMs());
   };
 
   const highlightSegment = (segment) => {
-    if (!segment || !elements.timerInput || document.activeElement !== elements.timerInput) {
+    if (
+      !isCountdownMode() ||
+      !segment ||
+      !elements.timerInput ||
+      document.activeElement !== elements.timerInput
+    ) {
       return;
     }
     elements.timerInput.setSelectionRange(segment.start, segment.end);
@@ -112,28 +134,83 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
     elements.presetButtons.forEach((button) => button.classList.remove('chip--active'));
   };
 
+  const updateModeUI = () => {
+    const countdown = isCountdownMode();
+
+    if (elements.timerModeButtons) {
+      elements.timerModeButtons.forEach((button) => {
+        const buttonMode = button.dataset.timerMode;
+        button.classList.toggle('chip--active', buttonMode === mode);
+      });
+    }
+
+    if (elements.timerDisplayControls) {
+      elements.timerDisplayControls.classList.toggle('is-hidden', !countdown);
+    }
+
+    if (elements.timerPresetsContainer) {
+      elements.timerPresetsContainer.classList.toggle('is-hidden', !countdown);
+    }
+
+    if (elements.presetButtons) {
+      elements.presetButtons.forEach((button) => {
+        button.disabled = !countdown;
+      });
+    }
+
+    if (elements.timerIncreaseBtn) {
+      elements.timerIncreaseBtn.disabled = !countdown;
+    }
+
+    if (elements.timerDecreaseBtn) {
+      elements.timerDecreaseBtn.disabled = !countdown;
+    }
+
+    if (elements.timerInput) {
+      if (countdown) {
+        elements.timerInput.removeAttribute('readonly');
+        elements.timerInput.classList.remove('timer__display-input--readonly');
+      } else {
+        elements.timerInput.setAttribute('readonly', 'readonly');
+        elements.timerInput.classList.add('timer__display-input--readonly');
+      }
+    }
+  };
+
   const setDurationFromMs = (ms, { preserveRunningState = false } = {}) => {
     const safeValue = clampDuration(ms, { min: MIN_TIMER_MS, max: MAX_TIMER_MS });
 
+    durationMs = safeValue;
+    remainingMs = safeValue;
     if (!preserveRunningState) {
       clearTimer();
       isRunning = false;
-      setStartButtonLabel('start');
+      deadline = null;
+      stopwatchStartTime = null;
     }
 
-    durationMs = safeValue;
-    remainingMs = safeValue;
-    deadline = null;
-    updateTimerDisplay({ force: true });
+    if (isCountdownMode()) {
+      updateTimerDisplay({ force: true });
+    }
+
+    updateStartPauseLabel();
   };
 
   const adjustTimerBy = (deltaMs) => {
+    if (!isCountdownMode()) {
+      return;
+    }
+
     const nextDuration = durationMs + deltaMs;
     clearPresetSelection();
     setDurationFromMs(nextDuration);
   };
 
   const adjustTimerByActiveSegment = (direction) => {
+    if (!isCountdownMode()) {
+      return;
+    }
+
     const segment = findSegmentById(activeSegmentId) ?? findSegmentById(DEFAULT_SEGMENT_ID);
     if (!segment) {
       return;
@@ -147,6 +224,10 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
   };
 
   const moveActiveSegment = (offset) => {
+    if (!isCountdownMode()) {
+      return;
+    }
+
     const currentIndex = TIME_SEGMENTS.findIndex((segment) => segment.id === activeSegmentId);
     const nextIndex = Math.min(Math.max(currentIndex + offset, 0), TIME_SEGMENTS.length - 1);
     const targetSegment = TIME_SEGMENTS[nextIndex];
@@ -157,7 +238,7 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
   };
 
   const selectSegmentAtCursor = () => {
-    if (!elements.timerInput) {
+    if (!isCountdownMode() || !elements.timerInput) {
       return;
     }
 
@@ -173,10 +254,18 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
     if (!isRunning) {
       return;
     }
-    remainingMs = Math.max(0, deadline - Date.now());
+
+    if (isCountdownMode() && deadline != null) {
+      remainingMs = Math.max(0, deadline - Date.now());
+    } else if (!isCountdownMode() && stopwatchStartTime != null) {
+      elapsedMs = Math.min(MAX_TIMER_MS, Math.max(0, Date.now() - stopwatchStartTime));
+    }
+
     isRunning = false;
     clearTimer();
-    setStartButtonLabel(remainingMs > 0 ? 'resume' : 'start');
+    deadline = null;
+    stopwatchStartTime = null;
+    updateStartPauseLabel();
     elements.startPauseBtn?.classList.toggle('btn--primary', true);
   };
 
@@ -192,19 +281,67 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
   };
 
   const tick = () => {
-    const diff = deadline - Date.now();
-    remainingMs = Math.max(0, diff);
+    if (isCountdownMode()) {
+      if (deadline == null) {
+        return;
+      }
+
+      const diff = deadline - Date.now();
+      remainingMs = Math.max(0, diff);
+      updateTimerDisplay();
+
+      if (remainingMs <= 0) {
+        clearTimer();
+        isRunning = false;
+        deadline = null;
+        updateStartPauseLabel();
+        triggerCompletionFeedback();
+        if (typeof onComplete === 'function') {
+          onComplete();
+        }
+      }
+      return;
+    }
+
+    if (stopwatchStartTime == null) {
+      return;
+    }
+
+    const diff = Date.now() - stopwatchStartTime;
+    elapsedMs = Math.min(MAX_TIMER_MS, Math.max(0, diff));
     updateTimerDisplay();
 
-    if (remainingMs <= 0) {
-      clearTimer();
-      isRunning = false;
-      setStartButtonLabel('start');
-      triggerCompletionFeedback();
-      if (typeof onComplete === 'function') {
-        onComplete();
-      }
+    if (elapsedMs >= MAX_TIMER_MS) {
+      pauseTimer();
     }
+  };
+
+  const setMode = (nextMode) => {
+    const normalizedMode =
+      nextMode === TIMER_MODE.STOPWATCH ? TIMER_MODE.STOPWATCH : TIMER_MODE.COUNTDOWN;
+
+    if (mode === normalizedMode) {
+      updateModeUI();
+      updateTimerDisplay({ force: true });
+      updateStartPauseLabel();
+      return;
+    }
+
+    if (isRunning) {
+      pauseTimer();
+    } else {
+      clearTimer();
+    }
+
+    mode = normalizedMode;
+    deadline = null;
+    stopwatchStartTime = null;
+    isEditing = false;
+    shouldRevertInput = false;
+
+    updateModeUI();
+    updateTimerDisplay({ force: true });
+    updateStartPauseLabel();
   };
 
   const startTimer = () => {
@@ -213,20 +350,42 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
       return;
     }
 
-    if (remainingMs <= 0) {
-      remainingMs = durationMs;
+    if (isCountdownMode()) {
+      if (remainingMs <= 0) {
+        remainingMs = durationMs;
+      }
+
+      if (remainingMs <= 0) {
+        updateTimerDisplay({ force: true });
+        updateStartPauseLabel();
+        return;
+      }
+
+      deadline = Date.now() + remainingMs;
+    } else {
+      if (elapsedMs >= MAX_TIMER_MS) {
+        updateTimerDisplay({ force: true });
+        updateStartPauseLabel();
+        return;
+      }
+
+      stopwatchStartTime = Date.now() - elapsedMs;
     }
 
-    deadline = Date.now() + remainingMs;
     isRunning = true;
-    setStartButtonLabel('pause');
     clearTimer();
+    updateStartPauseLabel();
     timerId = setInterval(tick, TIMER_TICK_INTERVAL);
     tick();
   };
 
   const handleTimerInputCommit = () => {
     if (!elements.timerInput) {
+      return;
+    }
+
+    if (!isCountdownMode()) {
+      updateTimerDisplay({ force: true });
       return;
     }
 
@@ -249,20 +408,35 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
     elements.resetBtn.addEventListener('click', () => {
       clearTimer();
       isRunning = false;
+      deadline = null;
+      stopwatchStartTime = null;
       remainingMs = durationMs;
+      elapsedMs = 0;
       updateTimerDisplay({ force: true });
-      setStartButtonLabel('start');
+      updateStartPauseLabel();
     });
   }
 
   if (elements.presetButtons) {
     elements.presetButtons.forEach((button) => {
       button.addEventListener('click', () => {
+        if (!isCountdownMode()) {
+          return;
+        }
+
         clearPresetSelection();
         button.classList.add('chip--active');
 
         const minutes = Number(button.dataset.minutes || DEFAULT_TIMER_MINUTES);
         setDurationFromMs(minutes * 60 * 1000);
+      });
+    });
+  }
+
+  if (elements.timerModeButtons) {
+    elements.timerModeButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        setMode(button.dataset.timerMode);
       });
     });
   }
@@ -281,12 +455,26 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
 
   if (elements.timerInput) {
     elements.timerInput.addEventListener('focus', () => {
+      if (!isCountdownMode()) {
+        shouldRevertInput = false;
+        isEditing = false;
+        return;
+      }
+
       isEditing = true;
       shouldRevertInput = false;
       runOnNextFrame(() => setActiveSegment(activeSegmentId, { highlight: true }));
     });
 
     elements.timerInput.addEventListener('keydown', (event) => {
+      if (!isCountdownMode()) {
+        if (event.key === 'Enter' || event.key === 'Escape') {
+          event.preventDefault();
+          elements.timerInput.blur();
+        }
+        return;
+      }
+
       if (event.key === 'Enter') {
         event.preventDefault();
         elements.timerInput.blur();
@@ -325,16 +513,28 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
     });
 
     elements.timerInput.addEventListener('mouseup', () => {
+      if (!isCountdownMode()) {
+        return;
+      }
       runOnNextFrame(selectSegmentAtCursor);
     });
 
     elements.timerInput.addEventListener('touchend', () => {
+      if (!isCountdownMode()) {
+        return;
+      }
       runOnNextFrame(selectSegmentAtCursor);
     });
 
     elements.timerInput.addEventListener('blur', () => {
       const revert = shouldRevertInput;
       shouldRevertInput = false;
+      if (!isCountdownMode()) {
+        isEditing = false;
+        updateTimerDisplay({ force: true });
+        return;
+      }
+
       isEditing = false;
 
       if (revert) {
@@ -346,22 +546,32 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
     });
   }
 
+  updateModeUI();
   updateTimerDisplay({ force: true });
   updateStartPauseLabel();
 
   return {
+    getMode: () => mode,
     getDuration: () => durationMs,
     getRemaining: () => remainingMs,
-    getTrackedMs: () => durationMs - remainingMs,
+    getTrackedMs: () => (isCountdownMode() ? Math.max(0, durationMs - remainingMs) : elapsedMs),
+    isRunning: () => isRunning,
     resetAfterTaskSave: () => {
       clearTimer();
       isRunning = false;
       deadline = null;
+      stopwatchStartTime = null;
       remainingMs = durationMs;
+      elapsedMs = 0;
       updateTimerDisplay({ force: true });
-      setStartButtonLabel('start');
+      updateStartPauseLabel();
     },
     setDurationFromMs,
-    refreshLabels: updateStartPauseLabel
+    setMode,
+    refreshLabels: () => {
+      updateStartPauseLabel();
+      updateModeUI();
+      updateTimerDisplay({ force: true });
+    }
   };
 };

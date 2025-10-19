@@ -4,10 +4,20 @@ Flowtime ist ein fokussierter Desktop-Timer auf Basis von Electron. Die App ist 
 
 ## Highlights
 
-- Fokus-Timer mit Presets (15/25/45/60 Minuten), manueller Eingabe und Tastatursteuerung
+- Fokus-Timer mit Countdown- und Stopuhr-Modus, Presets (15/25/45/60 Minuten), manueller Eingabe und Tastatursteuerung
+- Countdown-Laufzeiten lassen sich bis auf `00:00:00` heruntersetzen
 - Task-Formular mit Session-Historie inklusive Tages-, Wochen- und Gesamtfilter
 - Persistente Speicherung via `localStorage` und optische Rückmeldung bei Timer-Ende
+- Optionaler Pausen-Reminder mit frei wählbarem Intervall und dezenter Benachrichtigung unten rechts
 - Sauber getrennte Renderer-Module für Timer, Historie, Einstellungen, i18n und Hilfsfunktionen
+
+## Timer-Modi
+
+Direkt unter der Zeitanzeige wählst du jetzt, ob der Timer als Countdown oder als Stopuhr laufen soll. Im Stopuhr-Modus wird die Zeit hochgezählt, während Presets, Pfeiltasten und manuelle Eingabe für die Countdown-Konfiguration reserviert bleiben. Der Countdown akzeptiert inzwischen auch `00:00:00` als Zielzeit, sodass du Sessions auf Wunsch komplett zurücksetzen kannst.
+
+## Pausen-Reminder
+
+Über die Einstellungen lässt sich ein Pausen-Reminder aktivieren, der nach einer frei definierten Anzahl an Minuten eine dezente Benachrichtigung unten rechts einblendet. Das Intervall ist zwischen 5 und 240 Minuten frei skalierbar und bleibt lokal gespeichert. Auf Wunsch kannst du die Erinnerung snoozen und dir nach einigen Minuten erneut Bescheid geben lassen.
 
 ## Getting Started (Desktop)
 
@@ -72,11 +82,13 @@ Die Artefakte landen unter `apps/desktop/dist/` (AppImage, DMG, NSIS/Portable). 
 
 ## Code-Aufbau (Renderer)
 
-- `features/timer.js` kapselt alle Timer-Interaktionen (Start/Pause, Segment-Navigation, Presets).
+- `features/timer.js` kapselt Countdown- und Stopuhr-Logik inklusive Start/Pause, Segment-Navigation und Presets.
 - `features/history.js` lädt und rendert die Historie, inklusive Filterlogik und Totalzeit.
 - `features/settings.js` verantwortet das Einstellungs-Panel, Sprachwechsel und Responsive-Umbau.
+- `features/breakReminder.js` überwacht die aktive Session und stößt Pausen-Benachrichtigungen nach frei definierbaren Intervallen an.
 - `core/i18n.js` stellt Übersetzungs- und Sprachauswahl-Logik inkl. Listenern bereit.
 - `ui/translations.js` übernimmt das Aktualisieren der DOM-Texte; `ui/version.js` zieht die App-Version aus der Preload-Bridge.
+- `ui/notifications.js` rendert Toast-artige Hinweise wie den Pausen-Reminder im unteren rechten Bildschirmbereich.
 
 Diese Schnittstellen halten den Einstieg in `scripts/app.js` schlank und erleichtern Erweiterungen, etwa neue Features oder zusätzliche Views.
 

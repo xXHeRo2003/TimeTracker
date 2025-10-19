@@ -64,6 +64,72 @@
             </div>
           </label>
         </section>
+        <section class="settings__section settings__section--reminder">
+          <h3
+            class="settings__section-title"
+            data-i18n="settings.breakReminder.heading"
+          >
+            Pausenerinnerung
+          </h3>
+          <p
+            class="settings__section-description"
+            data-i18n="settings.breakReminder.description"
+          >
+            Lass dich in regelmäßigen Abständen an eine kurze Pause erinnern.
+          </p>
+          <div class="settings__field settings__field--switch">
+            <span
+              class="settings__label"
+              data-i18n="settings.breakReminder.enableLabel"
+            >
+              Erinnerung aktivieren
+            </span>
+            <label class="switch" for="breakReminderToggle">
+              <input
+                id="breakReminderToggle"
+                class="switch__input"
+                type="checkbox"
+                role="switch"
+                aria-label="Pausenerinnerung aktivieren"
+                data-i18n-attr="aria-label:settings.breakReminder.enableLabel"
+              />
+              <span class="switch__track" aria-hidden="true"></span>
+            </label>
+          </div>
+          <label class="settings__field" for="breakReminderMinutes">
+            <span
+              class="settings__label"
+              data-i18n="settings.breakReminder.intervalLabel"
+            >
+              Abstand zwischen Erinnerungen
+            </span>
+            <div class="settings__input-wrapper">
+              <input
+                id="breakReminderMinutes"
+                class="settings__input"
+                type="number"
+                min="5"
+                max="240"
+                step="1"
+                value="50"
+                aria-label="Abstand zwischen Erinnerungen in Minuten"
+                data-i18n-attr="aria-label:settings.breakReminder.intervalLabel"
+              />
+              <span
+                class="settings__input-suffix"
+                data-i18n="settings.breakReminder.intervalSuffix"
+              >
+                Minuten
+              </span>
+            </div>
+            <p
+              class="settings__hint"
+              data-i18n="settings.breakReminder.intervalHint"
+            >
+              Mindestens 5 Minuten, maximal 240 Minuten.
+            </p>
+          </label>
+        </section>
         <section class="settings__section">
           <h3 class="settings__section-title" data-i18n="settings.infoTitle">App-Informationen</h3>
           <dl class="settings__meta">
@@ -91,6 +157,29 @@
         </header>
 
         <div class="timer">
+          <div
+            class="timer__mode"
+            role="group"
+            aria-label="Timer-Modus auswählen"
+            data-i18n-attr="aria-label:timer.mode.groupAria"
+          >
+            <button
+              type="button"
+              class="chip chip--ghost chip--active"
+              data-timer-mode="countdown"
+              data-i18n="timer.mode.countdown"
+            >
+              Timer
+            </button>
+            <button
+              type="button"
+              class="chip chip--ghost"
+              data-timer-mode="stopwatch"
+              data-i18n="timer.mode.stopwatch"
+            >
+              Stopuhr
+            </button>
+          </div>
           <div class="timer__display" id="timerDisplay">
             <input
               id="timerInput"
@@ -207,6 +296,13 @@
         </div>
       </li>
     </template>
+
+    <div
+      id="notificationHost"
+      class="notification-host"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
 
     <script src="../scripts/app.js" type="module"></script>
   </body>

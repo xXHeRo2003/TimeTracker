@@ -3,6 +3,9 @@ export const elements = {
   timerPanel: document.getElementById('timerPanel'),
   timerDisplay: document.getElementById('timerDisplay'),
   timerInput: document.getElementById('timerInput'),
+  timerDisplayControls: document.querySelector('.timer__display-controls'),
+  timerPresetsContainer: document.querySelector('.timer__presets'),
+  timerModeButtons: Array.from(document.querySelectorAll('[data-timer-mode]')),
   timerIncreaseBtn: document.getElementById('timerIncreaseBtn'),
   timerDecreaseBtn: document.getElementById('timerDecreaseBtn'),
   totalTime: document.getElementById('totalTime'),
@@ -19,5 +22,8 @@ export const elements = {
   settingsBackdrop: document.getElementById('settingsBackdrop'),
   languageSelect: document.getElementById('languageSelect'),
   viewToggleBtn: document.getElementById('viewToggleBtn'),
-  appVersion: document.getElementById('appVersion')
+  appVersion: document.getElementById('appVersion'),
+  breakReminderToggle: document.getElementById('breakReminderToggle'),
+  breakReminderMinutes: document.getElementById('breakReminderMinutes'),
+  notificationHost: document.getElementById('notificationHost')
 };

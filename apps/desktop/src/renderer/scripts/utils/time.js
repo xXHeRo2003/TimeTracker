@@ -27,7 +27,7 @@ export const parseTimerInput = (value) => {
 
   if (!raw.includes(':')) {
     const minutes = Number(raw.replace(',', '.'));
-    if (!Number.isFinite(minutes) || minutes <= 0) {
+    if (!Number.isFinite(minutes) || minutes < 0) {
       return null;
     }
     return Math.round(minutes * 60 * 1000);
@@ -64,7 +64,7 @@ export const parseTimerInput = (value) => {
   }
 
   const totalMs = ((hours * 60 + minutes) * 60 + seconds) * 1000;
-  if (totalMs <= 0) {
+  if (totalMs < 0) {
     return null;
   }
 

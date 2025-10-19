@@ -50,9 +50,7 @@ export const getLanguage = () => currentLanguage;
 export const getLocale = () => (currentLanguage === 'de' ? 'de-DE' : 'en-US');
 
 export const translate = (key) =>
-  getTranslationValue(currentLanguage, key) ??
-  getTranslationValue(DEFAULT_LANGUAGE, key) ??
-  key;
+  getTranslationValue(currentLanguage, key) ?? getTranslationValue(DEFAULT_LANGUAGE, key) ?? key;
 
 export const setLanguage = (language) => {
   const nextLanguage = translations[language] ? language : DEFAULT_LANGUAGE;

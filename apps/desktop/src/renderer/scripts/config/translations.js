@@ -6,8 +6,7 @@ export const translations = {
       totalFocus: 'Gesamte Fokuszeit'
     },
     alerts: {
-      invalidTime:
-        'Bitte gib eine gültige Zeit ein. Beispiele: 25 (Minuten), 15:00, 01:30:00',
+      invalidTime: 'Bitte gib eine gültige Zeit ein. Beispiele: 25 (Minuten), 15:00, 01:30:00',
       noTrackedTime:
         'Starte den Timer und arbeite mindestens ein paar Sekunden, bevor du die Aufgabe speicherst.'
     },
@@ -35,6 +34,14 @@ export const translations = {
         label: 'Version',
         placeholder: 'Lade...'
       },
+      breakReminder: {
+        heading: 'Pausenerinnerung',
+        description: 'Lass dich in regelmäßigen Abständen an eine kurze Pause erinnern.',
+        enableLabel: 'Pausenerinnerung aktivieren',
+        intervalLabel: 'Abstand zwischen Erinnerungen',
+        intervalSuffix: 'Minuten',
+        intervalHint: 'Mindestens 5 Minuten, maximal 240 Minuten.'
+      },
       language: {
         heading: 'Sprache',
         description: 'Wähle die Sprache der App.',
@@ -52,11 +59,16 @@ export const translations = {
       showTimer: 'Timer anzeigen'
     },
     timer: {
+      mode: {
+        groupAria: 'Timer-Modus auswählen',
+        countdown: 'Timer',
+        stopwatch: 'Stopuhr'
+      },
       presets: {
-        '15': '15 Min',
-        '25': '25 Min',
-        '45': '45 Min',
-        '60': '60 Min'
+        15: '15 Min',
+        25: '25 Min',
+        45: '45 Min',
+        60: '60 Min'
       },
       adjust: {
         increase: 'Zeit erhöhen',
@@ -70,6 +82,15 @@ export const translations = {
       pause: 'Pause',
       resume: 'Weiter',
       reset: 'Reset'
+    },
+    breakReminder: {
+      notification: {
+        title: 'Zeit für eine Pause',
+        message:
+          'Du bist seit %MINUTES% Minuten fokussiert – steh kurz auf, streck dich oder hol dir etwas zu trinken.',
+        snooze: 'Später erinnern',
+        dismiss: 'Schließen'
+      }
     }
   },
   en: {
@@ -79,10 +100,8 @@ export const translations = {
       totalFocus: 'Total focus time'
     },
     alerts: {
-      invalidTime:
-        'Please enter a valid time. Examples: 25 (minutes), 15:00, 01:30:00',
-      noTrackedTime:
-        'Start the timer and work for at least a few seconds before saving the task.'
+      invalidTime: 'Please enter a valid time. Examples: 25 (minutes), 15:00, 01:30:00',
+      noTrackedTime: 'Start the timer and work for at least a few seconds before saving the task.'
     },
     console: {
       loadWarning: 'Unable to load stored data'
@@ -108,6 +127,14 @@ export const translations = {
         label: 'Version',
         placeholder: 'Loading...'
       },
+      breakReminder: {
+        heading: 'Break reminder',
+        description: 'Get a gentle nudge to take a short break in regular intervals.',
+        enableLabel: 'Enable break reminder',
+        intervalLabel: 'Interval between reminders',
+        intervalSuffix: 'minutes',
+        intervalHint: 'Minimum 5 minutes, maximum 240 minutes.'
+      },
       language: {
         heading: 'Language',
         description: 'Choose the language of the app.',
@@ -125,11 +152,16 @@ export const translations = {
       showTimer: 'Show timer'
     },
     timer: {
+      mode: {
+        groupAria: 'Select timer mode',
+        countdown: 'Timer',
+        stopwatch: 'Stopwatch'
+      },
       presets: {
-        '15': '15 min',
-        '25': '25 min',
-        '45': '45 min',
-        '60': '60 min'
+        15: '15 min',
+        25: '25 min',
+        45: '45 min',
+        60: '60 min'
       },
       adjust: {
         increase: 'Increase time',
@@ -143,6 +175,15 @@ export const translations = {
       pause: 'Pause',
       resume: 'Resume',
       reset: 'Reset'
+    },
+    breakReminder: {
+      notification: {
+        title: 'Time for a break',
+        message:
+          'You have been focused for %MINUTES% minutes – take a short break to stretch or grab some water.',
+        snooze: 'Remind me later',
+        dismiss: 'Dismiss'
+      }
     }
   }
 };
