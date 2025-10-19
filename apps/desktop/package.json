@@ -18,6 +18,11 @@
     "tracker",
     "electron"
   ],
+  "dependencies": {
+    "better-sqlite3": "^9.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
   "author": "",
   "license": "MIT",
   "devDependencies": {
@@ -34,7 +39,17 @@
     "productName": "Flowtime",
     "files": [
       "src/**/*",
-      "package.json"
+      "package.json",
+      {
+        "from": "../server/src",
+        "to": "server",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asarUnpack": [
+      "node_modules/better-sqlite3/build/Release/*.node"
     ],
     "directories": {
       "buildResources": "resources"
