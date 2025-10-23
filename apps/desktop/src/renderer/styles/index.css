@@ -150,18 +150,21 @@ body {
 }
 
 .settings__content {
-  padding: 24px;
+  padding: 28px;
   color: var(--text-muted);
   font-size: 0.95rem;
   line-height: 1.5;
   flex: 1;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
 }
 
 .settings__section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   color: inherit;
 }
 
@@ -181,13 +184,14 @@ body {
 .settings__field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .settings__field--switch {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
 }
 
 .settings__label {
