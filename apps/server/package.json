@@ -17,5 +17,9 @@
   "devDependencies": {
     "nodemon": "^3.0.2",
     "supertest": "^6.3.4"
+  },
+  "engines": {
+    "node": ">=20 <21",
+    "npm": ">=10 <11"
   }
 }

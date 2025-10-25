@@ -21,7 +21,7 @@ Direkt unter der Zeitanzeige wählst du jetzt, ob der Timer als Countdown oder a
 
 ## Getting Started (Desktop)
 
-Voraussetzung: Node.js (>= 18).
+Voraussetzung: Node.js 20 LTS (`>=20 <21`). Im Repo liegt eine `.nvmrc`, sodass `nvm use` direkt die passende Version aktiviert.
 
 ```bash
 cd apps/desktop

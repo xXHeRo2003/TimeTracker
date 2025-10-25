@@ -25,6 +25,10 @@
   },
   "author": "",
   "license": "MIT",
+  "engines": {
+    "node": ">=20 <21",
+    "npm": ">=10 <11"
+  },
   "devDependencies": {
     "electron": "^27.1.2",
     "electron-builder": "^26.0.12",
