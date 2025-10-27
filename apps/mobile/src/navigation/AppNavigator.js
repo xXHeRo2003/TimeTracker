@@ -10,6 +10,7 @@ import { colors } from '../theme/colors';
 import { TimerScreen } from '../screens/TimerScreen';
 import { HistoryScreen } from '../screens/HistoryScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
+import { TimerIcon, HistoryIcon, SettingsIcon } from '../components/icons/TabIcons';
 
 const Tab = createBottomTabNavigator();
 
@@ -41,6 +42,11 @@ export const AppNavigator = () => {
   const { translate, isReady: translationReady } = useTranslation();
   const { isReady: historyReady } = useHistoryContext();
   const { isReady: breakReady } = useBreakReminderSettings();
+  const tabIcons = {
+    Timer: TimerIcon,
+    History: HistoryIcon,
+    Settings: SettingsIcon
+  };
 
   if (!translationReady || !historyReady || !breakReady) {
     return <LoadingOverlay message={translate('app.subtitle')} />;
@@ -50,7 +56,7 @@ export const AppNavigator = () => {
     <NavigationContainer theme={navigationTheme}>
       <Tab.Navigator
         initialRouteName="Timer"
-        screenOptions={{
+        screenOptions={({ route }) => ({
           headerShown: false,
           tabBarStyle: {
             backgroundColor: colors.surface,
@@ -58,8 +64,19 @@ export const AppNavigator = () => {
             paddingBottom: 8,
             paddingTop: 8,
             height: 64
+          },
+          tabBarActiveTintColor: colors.accent,
+          tabBarInactiveTintColor: colors.textSecondary,
+          tabBarIcon: ({ color, size }) => {
+            const IconComponent = tabIcons[route.name];
+
+            if (!IconComponent) {
+              return null;
+            }
+
+            return <IconComponent color={color} size={size} />;
           }
-        }}
+        })}
       >
         <Tab.Screen
           name="Timer"
