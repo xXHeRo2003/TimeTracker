@@ -35,6 +35,12 @@ for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
 @rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
 
+@rem When invoked via WSL a wildcard JAVA_HOME may leak through; always use the known JDK install.
+set "FALLBACK_JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-17.0.16.8-hotspot"
+if exist "%FALLBACK_JAVA_HOME%\bin\java.exe" (
+    set "JAVA_HOME=%FALLBACK_JAVA_HOME%"
+)
+
 @rem Find java.exe
 if defined JAVA_HOME goto findJavaFromJavaHome
 
