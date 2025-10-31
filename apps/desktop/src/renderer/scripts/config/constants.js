@@ -1,5 +1,4 @@
 export const LANGUAGE_STORAGE_KEY = 'flowtime-language';
-export const HISTORY_STORAGE_KEY = 'flowtime-history';
 export const BREAK_REMINDER_STORAGE_KEY = 'flowtime-break-reminder';
 export const DEFAULT_LANGUAGE = 'de';
 

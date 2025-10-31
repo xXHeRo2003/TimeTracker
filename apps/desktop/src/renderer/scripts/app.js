@@ -9,6 +9,77 @@ import { applyDocumentTranslations } from './ui/translations.js';
 import { initializeAppVersion } from './ui/version.js';
 import { createId } from './utils/id.js';
 
+const applyPlatformOptimizations = () => {
+  const platform =
+    navigator.userAgentData?.platform ||
+    navigator.platform ||
+    (typeof navigator.userAgent === 'string' ? navigator.userAgent : '');
+
+  if (typeof platform === 'string' && /win/i.test(platform)) {
+    document.documentElement.dataset.platform = 'windows';
+  }
+};
+
+applyPlatformOptimizations();
+
+const applyDensityOptimizations = () => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return;
+  }
+
+  const root = document.documentElement;
+  if (!root) {
+    return;
+  }
+
+  const HIGH_DPI_THRESHOLD = 1.75;
+  let currentProfile = root.dataset.perfProfile || '';
+
+  const updateProfile = () => {
+    const ratio = window.devicePixelRatio || 1;
+    const nextProfile = ratio >= HIGH_DPI_THRESHOLD ? 'scaled' : '';
+
+    if (nextProfile === currentProfile) {
+      return;
+    }
+
+    if (nextProfile) {
+      root.dataset.perfProfile = nextProfile;
+    } else {
+      delete root.dataset.perfProfile;
+    }
+
+    currentProfile = nextProfile;
+  };
+
+  updateProfile();
+
+  let resizeScheduled = false;
+  const scheduleUpdate = () => {
+    if (resizeScheduled) {
+      return;
+    }
+    resizeScheduled = true;
+    window.requestAnimationFrame(() => {
+      resizeScheduled = false;
+      updateProfile();
+    });
+  };
+
+  window.addEventListener('resize', scheduleUpdate, { passive: true });
+
+  if (window.matchMedia) {
+    const mediaQuery = window.matchMedia('(min-resolution: 1.75dppx)');
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', updateProfile);
+    } else if (typeof mediaQuery.addListener === 'function') {
+      mediaQuery.addListener(updateProfile);
+    }
+  }
+};
+
+applyDensityOptimizations();
+
 const timer = createTimerController({ elements, translate });
 const history = createHistoryManager({ elements, translate, getLocale });
 const mobileView = createMobileViewController({ elements, translate });
@@ -46,7 +117,7 @@ const blurPresetButtons = () => {
 };
 
 if (elements.taskForm) {
-  elements.taskForm.addEventListener('submit', (event) => {
+  elements.taskForm.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const formData = new FormData(elements.taskForm);
@@ -69,10 +140,22 @@ if (elements.taskForm) {
       plannedMs: mode === 'countdown' ? timer.getDuration() : null,
       mode,
       trackedMs,
+      completedAtMs: Date.now(),
       completedAt: new Date().toISOString()
     };
 
-    history.addEntry(entry);
+    try {
+      const result = await history.addEntry(entry);
+      if (!result) {
+        console.warn('[app] Received no result after storing history entry');
+        return;
+      }
+    } catch (error) {
+      console.error('[app] Failed to store history entry', error);
+      alert(translate('alerts.saveFailed') || 'Eintrag konnte nicht gespeichert werden.');
+      return;
+    }
+
     timer.resetAfterTaskSave();
 
     elements.taskForm.reset();

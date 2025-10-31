@@ -9,7 +9,9 @@ import { createNotificationManager } from '../ui/notifications.js';
 const MINUTE_IN_MS = 60 * 1000;
 const FALLBACK_INTERVAL_MINUTES = BREAK_REMINDER_DEFAULT_INTERVAL_MINUTES;
 const DEFAULT_SNOOZE_MINUTES = 5;
-const CHECK_INTERVAL_MS = 1000;
+const CHECK_INTERVAL_IDLE_MS = 15 * 1000;
+const CHECK_INTERVAL_ACTIVE_MIN_MS = 500;
+const CHECK_INTERVAL_ACTIVE_MAX_MS = 60 * 1000;
 
 const clampInterval = (value) => {
   const numeric = Number(value);
@@ -36,8 +38,16 @@ export const createBreakReminder = ({ elements, timer, translate, onLanguageChan
 
   let settings = loadBreakReminderSettings();
   let previousTrackedMs = 0;
-  let lastIntervalNotified = 0;
-  let snoozedUntilTimestamp = null;
+ let lastIntervalNotified = 0;
+ let snoozedUntilTimestamp = null;
+  let monitorTimeoutId = null;
+
+  const clearMonitor = () => {
+    if (monitorTimeoutId) {
+      clearTimeout(monitorTimeoutId);
+      monitorTimeoutId = null;
+    }
+  };
 
   const syncToggle = () => {
     if (!toggle) {
@@ -84,7 +94,17 @@ export const createBreakReminder = ({ elements, timer, translate, onLanguageChan
 
   const scheduleSnooze = () => {
     snoozedUntilTimestamp = Date.now() + DEFAULT_SNOOZE_MINUTES * MINUTE_IN_MS;
+    runEvaluation();
   };
+
+  function scheduleEvaluation(delayMs = CHECK_INTERVAL_IDLE_MS) {
+    clearMonitor();
+    const safeDelay = Math.min(
+      Math.max(delayMs, CHECK_INTERVAL_ACTIVE_MIN_MS),
+      CHECK_INTERVAL_ACTIVE_MAX_MS
+    );
+    monitorTimeoutId = setTimeout(runEvaluation, safeDelay);
+  }
 
   const formatMessage = (trackedMinutes) => {
     const minutesText = Math.max(1, Math.round(trackedMinutes));
@@ -116,17 +136,17 @@ export const createBreakReminder = ({ elements, timer, translate, onLanguageChan
     });
   };
 
-  const evaluateReminder = () => {
-    if (!settings.enabled) {
-      return;
-    }
+  function evaluateReminder() {
+    let nextDelay = CHECK_INTERVAL_IDLE_MS;
 
-    if (!timer?.isRunning || !timer.isRunning()) {
-      return;
+    const intervalMs = clampInterval(settings.intervalMinutes) * MINUTE_IN_MS;
+    const timerIsRunning = settings.enabled && timer?.isRunning && timer.isRunning();
+
+    if (!settings.enabled || !timerIsRunning) {
+      return nextDelay;
     }
 
     const trackedMs = timer.getTrackedMs();
-    const intervalMs = clampInterval(settings.intervalMinutes) * MINUTE_IN_MS;
 
     if (trackedMs < previousTrackedMs) {
       resetTracking();
@@ -135,28 +155,49 @@ export const createBreakReminder = ({ elements, timer, translate, onLanguageChan
     previousTrackedMs = trackedMs;
 
     if (!Number.isFinite(intervalMs) || intervalMs <= 0) {
-      return;
+      return nextDelay;
+    }
+
+    const now = Date.now();
+
+    if (snoozedUntilTimestamp && now < snoozedUntilTimestamp) {
+      return Math.min(
+        Math.max(snoozedUntilTimestamp - now, CHECK_INTERVAL_ACTIVE_MIN_MS),
+        CHECK_INTERVAL_ACTIVE_MAX_MS
+      );
     }
 
     if (trackedMs < intervalMs) {
-      return;
-    }
-
-    if (snoozedUntilTimestamp && Date.now() < snoozedUntilTimestamp) {
-      return;
+      const remaining = intervalMs - trackedMs;
+      return Math.min(
+        Math.max(remaining, CHECK_INTERVAL_ACTIVE_MIN_MS),
+        CHECK_INTERVAL_ACTIVE_MAX_MS
+      );
     }
 
     const intervalsPassed = Math.floor(trackedMs / intervalMs);
-    if (intervalsPassed <= 0 || intervalsPassed <= lastIntervalNotified) {
-      return;
+    if (intervalsPassed > lastIntervalNotified) {
+      showReminder({ trackedMs });
+      lastIntervalNotified = intervalsPassed;
+      snoozedUntilTimestamp = null;
     }
 
-    showReminder({ trackedMs });
-    lastIntervalNotified = intervalsPassed;
-    snoozedUntilTimestamp = null;
-  };
+    const nextThresholdMs = (lastIntervalNotified + 1) * intervalMs;
+    const remainingMs = nextThresholdMs - trackedMs;
 
-  const monitorId = setInterval(evaluateReminder, CHECK_INTERVAL_MS);
+    nextDelay = Math.min(
+      Math.max(remainingMs, CHECK_INTERVAL_ACTIVE_MIN_MS),
+      CHECK_INTERVAL_ACTIVE_MAX_MS
+    );
+
+    return nextDelay;
+  }
+
+  function runEvaluation() {
+    monitorTimeoutId = null;
+    const nextDelay = evaluateReminder();
+    scheduleEvaluation(nextDelay);
+  }
 
   if (toggle) {
     toggle.addEventListener('change', (event) => {
@@ -166,11 +207,13 @@ export const createBreakReminder = ({ elements, timer, translate, onLanguageChan
       if (!enabled) {
         notificationManager.clear();
         resetTracking();
+        runEvaluation();
         return;
       }
 
       alignToCurrentProgress();
       snoozedUntilTimestamp = null;
+      runEvaluation();
     });
   }
 
@@ -180,6 +223,7 @@ export const createBreakReminder = ({ elements, timer, translate, onLanguageChan
       persistSettings({ ...settings, intervalMinutes: nextInterval });
       alignToCurrentProgress();
       snoozedUntilTimestamp = null;
+      runEvaluation();
     };
 
     minutesInput.addEventListener('change', (event) => {
@@ -203,6 +247,7 @@ export const createBreakReminder = ({ elements, timer, translate, onLanguageChan
     notificationManager.clear();
     syncUi();
     alignToCurrentProgress();
+    runEvaluation();
   };
 
   const detachLanguageListener =
@@ -210,10 +255,11 @@ export const createBreakReminder = ({ elements, timer, translate, onLanguageChan
 
   syncUi();
   alignToCurrentProgress();
+  runEvaluation();
 
   return {
     dispose: () => {
-      clearInterval(monitorId);
+      clearMonitor();
       if (typeof detachLanguageListener === 'function') {
         detachLanguageListener();
       }

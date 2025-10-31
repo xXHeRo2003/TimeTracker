@@ -88,6 +88,9 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
     setStartButtonLabel('start');
   };
 
+  const SECOND_IN_MS = 1000;
+  let lastRenderedSeconds = null;
+
   const getDisplayMs = () => (isCountdownMode() ? remainingMs : elapsedMs);
 
   const updateTimerDisplay = ({ force = false } = {}) => {
@@ -99,7 +102,17 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
       return;
     }
 
-    elements.timerInput.value = formatDuration(getDisplayMs());
+    const displayMs = getDisplayMs();
+    const nextRenderedSeconds = Math.floor(displayMs / SECOND_IN_MS);
+    if (!force && nextRenderedSeconds === lastRenderedSeconds) {
+      return;
+    }
+
+    lastRenderedSeconds = nextRenderedSeconds;
+    const formatted = formatDuration(displayMs);
+    if (elements.timerInput.value !== formatted) {
+      elements.timerInput.value = formatted;
+    }
   };
 
   const highlightSegment = (segment) => {
@@ -189,6 +202,8 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
       stopwatchStartTime = null;
     }
 
+    lastRenderedSeconds = null;
+
     if (isCountdownMode()) {
       updateTimerDisplay({ force: true });
     }
@@ -265,6 +280,8 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
     clearTimer();
     deadline = null;
     stopwatchStartTime = null;
+    lastRenderedSeconds = null;
+    updateTimerDisplay({ force: true });
     updateStartPauseLabel();
     elements.startPauseBtn?.classList.toggle('btn--primary', true);
   };
@@ -339,6 +356,7 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
     isEditing = false;
     shouldRevertInput = false;
 
+    lastRenderedSeconds = null;
     updateModeUI();
     updateTimerDisplay({ force: true });
     updateStartPauseLabel();
@@ -412,6 +430,7 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
       stopwatchStartTime = null;
       remainingMs = durationMs;
       elapsedMs = 0;
+      lastRenderedSeconds = null;
       updateTimerDisplay({ force: true });
       updateStartPauseLabel();
     });
@@ -563,6 +582,7 @@ export const createTimerController = ({ elements, translate, onComplete }) => {
       stopwatchStartTime = null;
       remainingMs = durationMs;
       elapsedMs = 0;
+      lastRenderedSeconds = null;
       updateTimerDisplay({ force: true });
       updateStartPauseLabel();
     },
