@@ -6,6 +6,8 @@
   "scripts": {
     "start": "electron .",
     "dev": "electronmon .",
+    "postinstall": "electron-builder install-app-deps",
+    "rebuild:native": "electron-builder install-app-deps",
     "predist": "node ./scripts/ensure-flowtime-closed.js",
     "dist": "electron-builder",
     "lint": "eslint \"src/**/*.{js,cjs,mjs}\"",
