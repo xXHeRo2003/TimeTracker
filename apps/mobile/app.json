@@ -24,6 +24,8 @@
     },
     "android": {
       "package": "com.flowtime.mobile",
+      "versionCode": 2,
+      "targetSdkVersion":35,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0f172a"
@@ -37,9 +39,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "00000000-0000-0000-0000-000000000000"
+        "projectId": "3f2b1ecb-2042-4f9e-b91e-7e4acb54f5d3"
       }
-    }
+    },
+    "owner": "softwarehero"
   }
 }
-
