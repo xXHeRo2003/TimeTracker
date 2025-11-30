@@ -3,7 +3,6 @@ import {
   BREAK_REMINDER_MAX_INTERVAL_MINUTES,
   BREAK_REMINDER_MIN_INTERVAL_MINUTES,
   BREAK_REMINDER_STORAGE_KEY,
-  HISTORY_STORAGE_KEY,
   LANGUAGE_STORAGE_KEY
 } from '../config/constants.js';
 
@@ -18,29 +17,6 @@ const normalizeReminderInterval = (value) => {
     Math.max(BREAK_REMINDER_MIN_INTERVAL_MINUTES, Math.round(numeric))
   );
   return clamped;
-};
-
-export const loadHistory = () => {
-  try {
-    const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
-    if (!raw) {
-      return [];
-    }
-
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    console.warn('[storage] Unable to read history from localStorage', error);
-    return [];
-  }
-};
-
-export const saveHistory = (entries) => {
-  try {
-    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(entries));
-  } catch (error) {
-    console.warn('[storage] Unable to persist history to localStorage', error);
-  }
 };
 
 export const readStoredLanguage = () => {

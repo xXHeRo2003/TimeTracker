@@ -6,6 +6,9 @@
   "scripts": {
     "start": "electron .",
     "dev": "electronmon .",
+    "postinstall": "electron-builder install-app-deps",
+    "rebuild:native": "electron-builder install-app-deps",
+    "predist": "node ./scripts/ensure-flowtime-closed.js",
     "dist": "electron-builder",
     "lint": "eslint \"src/**/*.{js,cjs,mjs}\"",
     "lint:fix": "npm run lint -- --fix",
@@ -20,8 +23,7 @@
   ],
   "dependencies": {
     "better-sqlite3": "^9.0.0",
-    "cors": "^2.8.5",
-    "express": "^4.19.2"
+    "test": "^3.3.0"
   },
   "author": "",
   "license": "MIT",
@@ -43,14 +45,7 @@
     "productName": "Flowtime",
     "files": [
       "src/**/*",
-      "package.json",
-      {
-        "from": "../server/src",
-        "to": "server",
-        "filter": [
-          "**/*"
-        ]
-      }
+      "package.json"
     ],
     "asarUnpack": [
       "node_modules/better-sqlite3/build/Release/*.node"

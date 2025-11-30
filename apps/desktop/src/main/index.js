@@ -1,8 +1,16 @@
-const fs = require('fs');
-const { app, BrowserWindow, nativeImage, Menu, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, nativeImage, Menu, ipcMain } = require('electron');
 const path = require('path');
 
-let backendInstance = null;
+const {
+  insertEntry,
+  listEntries,
+  deleteEntry,
+  clearEntries,
+  closeDatabase,
+  databaseFile
+} = require('./historyStore');
+
+let ipcRegistered = false;
 
 const getIconPath = () => {
   const resourcesDir = app.isPackaged
@@ -20,48 +28,22 @@ const getIconPath = () => {
   return path.join(resourcesDir, 'app-icon.png');
 };
 
-const resolveBackendEntry = () => {
-  const packagedPath = path.join(app.getAppPath(), 'server', 'index.js');
-  if (fs.existsSync(packagedPath)) {
-    return packagedPath;
+const registerIpcHandlers = () => {
+  if (ipcRegistered) {
+    return;
   }
 
-  return path.join(__dirname, '../../server/src/index.js');
-};
+  ipcMain.handle('history:list', () => listEntries());
+  ipcMain.handle('history:add', (_event, payload) => insertEntry(payload));
+  ipcMain.handle('history:delete', (_event, id) => deleteEntry(id));
+  ipcMain.handle('history:clear', async () => {
+    await clearEntries();
+    return true;
+  });
 
-const startBackend = async () => {
-  if (backendInstance) {
-    return backendInstance;
-  }
+  ipcMain.handle('history:getDatabasePath', () => databaseFile);
 
-  try {
-    const backendModule = require(resolveBackendEntry());
-    const { startServer } = backendModule;
-    backendInstance = await startServer({
-      port: process.env.FLOWTIME_BACKEND_PORT
-    });
-  } catch (error) {
-    console.error('[main] Failed to start backend', error);
-    backendInstance = null;
-
-    if (app.isPackaged) {
-      dialog.showErrorBox(
-        'Flowtime Backend',
-        'Der integrierte Flowtime-Server konnte nicht gestartet werden. Bitte prüfe, ob der Port bereits belegt ist.'
-      );
-    }
-
-    throw error;
-  }
-
-  return backendInstance;
-};
-
-const stopBackend = () => {
-  if (backendInstance?.server) {
-    backendInstance.server.close();
-    backendInstance = null;
-  }
+  ipcRegistered = true;
 };
 
 const createMainWindow = () => {
@@ -79,7 +61,8 @@ const createMainWindow = () => {
       preload: path.join(__dirname, '../preload/index.js'),
       nodeIntegration: false,
       sandbox: true,
-      enableRemoteModule: false
+      enableRemoteModule: false,
+      backgroundThrottling: false
     }
   });
 
@@ -98,15 +81,15 @@ const createMainWindow = () => {
   }
 };
 
-app.whenReady().then(async () => {
+app.whenReady().then(() => {
   Menu.setApplicationMenu(null);
 
   if (process.platform === 'darwin') {
     app.dock.setIcon(nativeImage.createFromPath(getIconPath()));
   }
 
-  await startBackend().catch(() => {});
   createMainWindow();
+  registerIpcHandlers();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -124,5 +107,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
-  stopBackend();
+  closeDatabase().catch((error) => {
+    console.warn('[main] Failed to close database before quit', error);
+  });
 });

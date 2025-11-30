@@ -45,6 +45,7 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
+  will-change: opacity;
   z-index: 20;
 }
 
@@ -62,15 +63,26 @@
   background: rgba(17, 11, 30, 0.98);
   border-left: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: -22px 0 60px rgba(0, 0, 0, 0.35);
-  transform: translateX(100%);
+  transform: translate3d(100%, 0, 0);
   transition: transform 0.3s ease;
+  will-change: transform;
   z-index: 30;
+  contain: paint;
   display: flex;
   flex-direction: column;
 }
 
 .settings--visible {
-  transform: translateX(0);
+  transform: translate3d(0, 0, 0);
+}
+
+:root[data-platform='windows'] .settings-backdrop {
+  backdrop-filter: none;
+  background: rgba(4, 3, 10, 0.7);
+}
+
+:root[data-platform='windows'] .settings {
+  box-shadow: -18px 0 44px rgba(0, 0, 0, 0.45);
 }
 
 .settings__header {

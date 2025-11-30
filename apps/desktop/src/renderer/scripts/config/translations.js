@@ -8,7 +8,8 @@ export const translations = {
     alerts: {
       invalidTime: 'Bitte gib eine gültige Zeit ein. Beispiele: 25 (Minuten), 15:00, 01:30:00',
       noTrackedTime:
-        'Starte den Timer und arbeite mindestens ein paar Sekunden, bevor du die Aufgabe speicherst.'
+        'Starte den Timer und arbeite mindestens ein paar Sekunden, bevor du die Aufgabe speicherst.',
+      saveFailed: 'Eintrag konnte nicht gespeichert werden. Bitte versuche es erneut.'
     },
     console: {
       loadWarning: 'Konnte gespeicherte Daten nicht laden'
@@ -101,7 +102,8 @@ export const translations = {
     },
     alerts: {
       invalidTime: 'Please enter a valid time. Examples: 25 (minutes), 15:00, 01:30:00',
-      noTrackedTime: 'Start the timer and work for at least a few seconds before saving the task.'
+      noTrackedTime: 'Start the timer and work for at least a few seconds before saving the task.',
+      saveFailed: 'Unable to save the entry. Please try again.'
     },
     console: {
       loadWarning: 'Unable to load stored data'
